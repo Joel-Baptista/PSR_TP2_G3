@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 import argparse
-import cv2
 import numpy as np
 import json
 from functools import partial
-import functools
-from colorama import Fore
+import cv2
+from colorama import Back, Fore
 
 
 def onTrackBars(_,window_name):
@@ -15,6 +14,7 @@ def onTrackBars(_,window_name):
     maxG = cv2.getTrackbarPos('maxG', window_name)
     minR = cv2.getTrackbarPos('minR', window_name)
     maxR = cv2.getTrackbarPos('maxR', window_name)
+
 
     limits = {'B': {'min': minB, 'max': maxB},
               'G': {'min': minG, 'max': maxG},
@@ -34,19 +34,25 @@ def main():
     window_name_ori = 'Camera'
     window_name_seg = 'Segmented image'
 
-    # Show image
-    cv2.namedWindow(window_name_ori)
-    cv2.namedWindow(window_name_seg)
 
-    onTrackbars_partial =partial(onTrackBars, window_name=window_name_seg)
+    if capture.isOpened() is True:
+        print(Back.GREEN + 'Starting video' + Back.RESET)
+        print(Fore.LIGHTYELLOW_EX + 'Press w to exit and save' + Fore.RESET)
+        print(Fore.RED + 'Press q to exit without saving the threshold' + Fore.RESET)
+
+    # Show image
+    cv2.namedWindow(window_name_ori, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(window_name_seg, cv2.WINDOW_NORMAL)
+
+    onTrackbar_partial =partial(onTrackBars, window_name=window_name_seg)
 
     # Create all trackbar
-    cv2.createTrackbar('minB', window_name_seg, 0, 255, onTrackbars_partial)
-    cv2.createTrackbar('maxB', window_name_seg, 0, 255, onTrackbars_partial)
-    cv2.createTrackbar('minG', window_name_seg, 0, 255, onTrackbars_partial)
-    cv2.createTrackbar('maxG', window_name_seg, 0, 255, onTrackbars_partial)
-    cv2.createTrackbar('minR', window_name_seg, 0, 255, onTrackbars_partial)
-    cv2.createTrackbar('maxR', window_name_seg, 0, 255, onTrackbars_partial)
+    cv2.createTrackbar('minB', window_name_seg, 0, 255, onTrackbar_partial)
+    cv2.createTrackbar('maxB', window_name_seg, 0, 255, onTrackbar_partial)
+    cv2.createTrackbar('minG', window_name_seg, 0, 255, onTrackbar_partial)
+    cv2.createTrackbar('maxG', window_name_seg, 0, 255, onTrackbar_partial)
+    cv2.createTrackbar('minR', window_name_seg, 0, 255, onTrackbar_partial)
+    cv2.createTrackbar('maxR', window_name_seg, 0, 255, onTrackbar_partial)
 
     while capture.isOpened():
         # Get an image from the camera and show
