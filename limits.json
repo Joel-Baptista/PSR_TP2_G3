@@ -1,18 +1,1 @@
-{
-  "name": "limits.json",
-  "version": "1.0.0",
-  "dependencies": {
-    "B": {
-      "max": 255,
-      "min": 118
-    },
-    "G": {
-      "max": 160,
-      "min": 0
-    },
-    "R": {
-      "max": 50,
-      "min": 0
-    }
-  }
-}
+{"limits": {"B": {"min": 169, "max": 209}, "G": {"min": 23, "max": 69}, "R": {"min": 0, "max": 25}}}
