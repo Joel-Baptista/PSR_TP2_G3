@@ -10,7 +10,7 @@ import numpy as np
 def JsonReader(json_file): # Read and format json file information
     f = open(json_file)
     data = json.load(f) # All information of json file
-    limits = data['dependencies'] # Just limits info
+    limits = data['limits'] # Just limits info
 
     B = {'max': limits['B']['max'], 'min': limits['B']['min']}
     G = {'max': limits['G']['max'], 'min': limits['G']['min']}
@@ -43,6 +43,8 @@ def main():
         cv2.moveWindow(window, position[0], position[1])
 
     kernel = np.ones((2, 2), np.uint8) # for pre-processing images
+
+    cv2.imshow(windows[3], canvas)
     while True:
 
         # ---------------------- Frame Capture -------------------------
@@ -51,6 +53,7 @@ def main():
 
         frame_GUI = copy.deepcopy(frame)
         frame_largest = np.zeros(frame.shape)
+
 
         # ---------------------- Segmentation -------------------------
         mask = cv2.inRange(frame_GUI, (lim_B['min'], lim_G['min'], lim_R['min']),
