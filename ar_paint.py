@@ -131,7 +131,7 @@ def main():
         elif command == 119:  # Press 'w' to save sketch
 
 
-        elif command == 113:  # Press 'q' to quit
+        else command == 113:  # Press 'q' to quit
             cv2.destroyAllWindows()
             break
 
