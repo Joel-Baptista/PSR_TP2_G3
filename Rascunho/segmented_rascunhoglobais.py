@@ -88,6 +88,8 @@ def main():
     while capture.isOpened():
         _, frame = capture.read()
         cv2.imshow(window_name_original, frame)
+        cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Camera', 600, 600)
 
         ranges = {'limits': {'B': {'min': minimumb, 'max': maximumb},
                              'G': {'min': minimumg, 'max': maximumg},
@@ -99,6 +101,8 @@ def main():
         mask = cv2.inRange(frame, mins, maxs)
 
         cv2.imshow(window_name, mask)
+        cv2.namedWindow('Segmented', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Segmented', 600, 600)
         key = cv2. waitKey(1)
 
         if key == ord('q'):
