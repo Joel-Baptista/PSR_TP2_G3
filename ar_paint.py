@@ -34,6 +34,9 @@ def JsonReader(json_file): # Read and format json file information
 
 
 def main():
+    # <=========================INITIALIZATION==========================================>
+    parameters = {'color': (0, 0, 255), 'radius': 5}
+    rules()
 
     # <======================GET LIMITS ON JSON FILE==================================>
 
@@ -62,12 +65,12 @@ def main():
     while True:
         # ---------------------- Frame Capture -------------------------
         _, frame = capture.read()
-        cv2.imshow(windows[0], frame)
 
         frame_GUI = copy.deepcopy(frame)
+        frame_GUI = cv2.flip(frame_GUI, 1)
         frame_largest = np.zeros(frame.shape)
 
-
+        cv2.imshow(windows[0], frame_GUI)
         # ---------------------- Segmentation -------------------------
         mask = cv2.inRange(frame_GUI, (lim_B['min'], lim_G['min'], lim_R['min']),
             (lim_B['max'], lim_G['max'], lim_R['max']))
@@ -95,40 +98,41 @@ def main():
 
             cv2.imshow(windows[3], canvas)
 
-            cv2.circle(canvas, (cX, cY), 7, (0, 0, 255), -1)
+            cv2.circle(canvas, (cX, cY), parameters['radius'], parameters['color'], -1)
+        else:
+            cv2.imshow(windows[2], frame_largest)
 
+        key = cv2.waitKey(1)  # keyboard command
+        parameters = keyboardCommands(key, parameters, frame)
+        if key == 113:  # Press 'q' to close the windows
+            cv2.destroyAllWindows()
+            break
 
         # <======================================== Keyboard Commands ==========================================>
-def keyboardCommands():
-    radius = 5            # default radius
-    color = (0, 0, 0)       # default color
-    key = cv2.waitKey(1)  # keyboard command
+def keyboardCommands(key, parameters, canvas):
     if key == 114:    # Press 'r' to paint red
-        color = (0, 0, 255)
+        parameters['color'] = (0, 0, 255)
 
     elif key == 103:  # Press 'g' to paint green
-        color = (0, 255, 0)
+        parameters['color'] = (0, 255, 0)
 
     elif key == 98:  # Press 'b' to paint blue
-        color = (255, 0, 0)
+        parameters['color'] = (255, 0, 0)
 
     elif key == 43:  # Press '+' to get bigger radius
-        radius += 1
+        parameters['radius'] += 1
 
     elif key == 45:  # Press '-' to get smaller radius
-        if radius > 1:
-            radius -= 1
+        if parameters['radius'] > 1:
+            parameters['radius'] -= 1
     elif key == 99:  # Press 'c' to clear the window
-        canvas = 255*np.ones(frame.shape)
+        canvas = canvas.fill((255, 255, 255))
 
     elif key == 119:  # Press 'w' to write the drawn image
         cv2.imwrite('drawing' + ctime() + '.png', canvas)
 
-    elif key == 113:    # Press 'q' to close the windows
-        cv2.destroyAllWindows()
-    else:
-        rules()
 
+    return parameters
         # <================================================ RULES ==============================================>
 def rules():
     print('RULES: ')
