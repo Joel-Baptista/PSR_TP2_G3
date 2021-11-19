@@ -6,8 +6,9 @@ import argparse
 import json
 import numpy as np
 
+
 def paintMode():
-    parser = argparse.ArgumentParser(description="PARI AR Paint")
+    parser = argparse.ArgumentParser(description="PSR AR Paint")
     parser.add_argument('-usp',
                         '--use_shake_prevention',
                         help="Use Shake Detection.",
@@ -97,43 +98,51 @@ def main():
 
             cv2.circle(canvas, (cX, cY), 7, (0, 0, 255), -1)
 
-        key = cv2.waitKey(1)
-        if key != -1:
-            break
+
         # <----------------------------------- Keyboard Commands ---------------------------------------->
-        color = (255, 0, 0) #default color
-        radius = 5          #default radius
-        command = cv2.waitKey(1)  #keyboard command
-        if command == 114:  # Press 'r' to paint red
+def keyboardCommands():
+    radius = 5            # default radius
+    color = (0,0,0)       # default color
+    key = cv2.waitKey(1)  # keyboard command
+    if key == 114:    # Press 'r' to paint red
+        color = (0, 0, 255)
 
-            color = (0, 0, 255)
-            del command
+    elif key == 103:  # Press 'g' to paint green
+        color = (0, 255, 0)
 
-        elif command == 103:  # Press 'g' to paint green
+    elif key == 98:  # Press 'b' to paint blue
+        color = (255, 0, 0)
 
-            color = (0, 255, 0)
-            del command
+    elif key == 43:  # Press '+' to get bigger radius
+        radius += 1
 
-        elif command == 98:  # Press 'b' to paint blue
+    elif key == 45:  # Press '-' to get smaller radius
+        if radius > 1:
+            radius -= 1
+    elif key == 99:  # Press 'c' to clear the window
+        canvas = 255*np.ones(frame.shape)
 
-            color = (255, 0, 0)
-            del command
+    elif key == 119:  # Press 'w' to write the drawn image
+        cv2.imwrite()
+    elif key == 113: # Press 'q' to close the windows
+        cv2.destroyAllWindows()
+    else:
+        rules()
 
-        elif command == 43:  # Press '+' to get bigger radius
-            radius += 1
-            del command
+        # <---------------------------------------------- RULES -------------------------------------------->
+def rules():
+    print('RULES: ')
+    print('Press b to paint blue.')
+    print('Press g to paint green.')
+    print('Press r to paint red.')
+    print('Press + to get bigger radius.')
+    print('Press - to get smaller radius.')
+    print('Press c to clear the window.')
+    print('Press w to write the drawn image.')
+    print('Press q to close all windows.')
 
-        elif command == 45:  # Press '-' to get smaller radius
-            if radius > 1:
-                radius -= 1
-            del command
-
-        elif command == 119:  # Press 'w' to save sketch
 
 
-        else command == 113:  # Press 'q' to quit
-            cv2.destroyAllWindows()
-            break
 
 
 if __name__ == "__main__":
