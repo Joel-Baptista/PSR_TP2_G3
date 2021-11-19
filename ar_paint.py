@@ -5,7 +5,7 @@ import cv2
 import argparse
 import json
 import numpy as np
-
+from time import time, ctime, sleep
 
 def paintMode():
     parser = argparse.ArgumentParser(description="PSR AR Paint")
@@ -123,7 +123,8 @@ def keyboardCommands():
         canvas = 255*np.ones(frame.shape)
 
     elif key == 119:  # Press 'w' to write the drawn image
-        cv2.imwrite()
+        cv2.imwrite('drawing' + ctime() + '.png', canvas)
+
     elif key == 113: # Press 'q' to close the windows
         cv2.destroyAllWindows()
     else:
