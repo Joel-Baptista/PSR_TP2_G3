@@ -60,7 +60,6 @@ def main():
 
     cv2.imshow(windows[3], canvas)
     while True:
-
         # ---------------------- Frame Capture -------------------------
         _, frame = capture.read()
         cv2.imshow(windows[0], frame)
@@ -99,10 +98,10 @@ def main():
             cv2.circle(canvas, (cX, cY), 7, (0, 0, 255), -1)
 
 
-        # <----------------------------------- Keyboard Commands ---------------------------------------->
+        # <======================================== Keyboard Commands ==========================================>
 def keyboardCommands():
     radius = 5            # default radius
-    color = (0,0,0)       # default color
+    color = (0, 0, 0)       # default color
     key = cv2.waitKey(1)  # keyboard command
     if key == 114:    # Press 'r' to paint red
         color = (0, 0, 255)
@@ -125,12 +124,12 @@ def keyboardCommands():
     elif key == 119:  # Press 'w' to write the drawn image
         cv2.imwrite('drawing' + ctime() + '.png', canvas)
 
-    elif key == 113: # Press 'q' to close the windows
+    elif key == 113:    # Press 'q' to close the windows
         cv2.destroyAllWindows()
     else:
         rules()
 
-        # <---------------------------------------------- RULES -------------------------------------------->
+        # <================================================ RULES ==============================================>
 def rules():
     print('RULES: ')
     print('Press b to paint blue.')
