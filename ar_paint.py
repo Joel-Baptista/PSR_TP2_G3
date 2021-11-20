@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import copy
-
+from colorama import Fore, Back, Style
 import cv2
 import argparse
 import json
@@ -34,11 +34,11 @@ def JsonReader(json_file): # Read and format json file information
 
 
 def main():
-    # <=========================INITIALIZATION==========================================>
+    # <======================================INITIALIZATION==========================================>
     parameters = {'color': (0, 0, 255), 'radius': 5}
     rules()
 
-    # <======================GET LIMITS ON JSON FILE==================================>
+    # <===================================GET LIMITS ON JSON FILE====================================>
 
     parser = argparse.ArgumentParser(description='JSON file with limits information')
     parser.add_argument('-j', '--json', type=str, help='Path to JSON file')
@@ -46,7 +46,7 @@ def main():
 
     lim_R, lim_G, lim_B = JsonReader(args['json'])
 
-    #  <===================== Video Capture =================================>
+    #  <===================================VIDEO CAPTURE============================================>
 
     capture = cv2.VideoCapture(0)
     _, frame = capture.read()
@@ -63,7 +63,7 @@ def main():
 
     cv2.imshow(windows[3], canvas)
     while True:
-        # ---------------------- Frame Capture -------------------------
+        # <=====================================FRAME CAPTURE=======================================>
         _, frame = capture.read()
 
         frame_GUI = copy.deepcopy(frame)
@@ -71,17 +71,17 @@ def main():
         frame_largest = np.zeros(frame.shape)
 
         cv2.imshow(windows[0], frame_GUI)
-        # ---------------------- Segmentation -------------------------
+        # <=====================================SEGMENTATION========================================>
         mask = cv2.inRange(frame_GUI, (lim_B['min'], lim_G['min'], lim_R['min']),
             (lim_B['max'], lim_G['max'], lim_R['max']))
 
-        # ---------------------- Pre-processing -------------------------
+        # <=====================================PRE-PROCESSING======================================>
         mask_dilation = cv2.dilate(mask, kernel, iterations=2)
         mask_closing = cv2.morphologyEx(mask_dilation, cv2.MORPH_CLOSE, kernel)
 
         cv2.imshow(windows[1], mask_closing)
 
-        # ---------------------- Finding Cellphone Screen -------------------------
+        # <==================================FINDING CELLPHONE SCREEN===============================>
         contours, hierarchy = cv2.findContours(mask_closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         if len(contours) > 0: # Finds contour with maximum area and draws it on window "Largest Component"
@@ -91,7 +91,7 @@ def main():
             mask_largest = cv2.fillPoly(frame_largest, pts=[cnt_max], color=(255, 255, 255))
 
             cv2.imshow(windows[2], mask_largest)
-            #  <===================== Canvas Drawing =================================>
+            #  <===================================CANVAS DRAWING====================================>
             M = cv2.moments(cnt_max)
             cX = int(M['m10']/M['m00'])
             cY = int(M['m01'] / M['m00'])
@@ -108,7 +108,7 @@ def main():
             cv2.destroyAllWindows()
             break
 
-        # <======================================== Keyboard Commands ==========================================>
+        # <======================================KEYBOARD COMMANDS===================================>
 def keyboardCommands(key, parameters, canvas):
     if key == 114:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
@@ -133,20 +133,18 @@ def keyboardCommands(key, parameters, canvas):
 
 
     return parameters
-        # <================================================ RULES ==============================================>
+
+# <==================================================RULES================================================>
 def rules():
     print('RULES: ')
-    print('Press b to paint blue.')
-    print('Press g to paint green.')
-    print('Press r to paint red.')
-    print('Press + to get bigger radius.')
-    print('Press - to get smaller radius.')
-    print('Press c to clear the window.')
-    print('Press w to write the drawn image.')
-    print('Press q to close all windows.')
-
-
-
+    print('Press' + Fore.BLUE + 'b' + Style.RESET_ALL + 'to paint blue.')
+    print('Press' + Fore.GREEN + 'g' + Style.RESET_ALL + 'to paint green.')
+    print('Press' + Fore.RED + 'r' + Style.RESET_ALL + 'to paint red.')
+    print('Press' + Fore.YELLOW + '+' + Style.RESET_ALL + 'to get bigger radius.')
+    print('Press' + Fore.YELLOW + '-' + Style.RESET_ALL + 'to get smaller radius.')
+    print('Press' + Fore.YELLOW + 'c' + Style.RESET_ALL + 'to clear the window.')
+    print('Press' + Fore.YELLOW + 'w' + Style.RESET_ALL + 'to write the drawn image.')
+    print('Press' + Fore.YELLOW + 'q' + Style.RESET_ALL + 'to close all windows.')
 
 
 if __name__ == "__main__":

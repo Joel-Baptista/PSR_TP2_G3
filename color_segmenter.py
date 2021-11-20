@@ -44,7 +44,7 @@ def main():
     cv2.namedWindow(window_name_ori, cv2.WINDOW_NORMAL)
     cv2.namedWindow(window_name_seg, cv2.WINDOW_NORMAL)
 
-    onTrackbar_partial =partial(onTrackBars, window_name=window_name_seg)
+    onTrackbar_partial = partial(onTrackBars, window_name=window_name_seg)
 
     # Create all trackbar
     cv2.createTrackbar('minB', window_name_seg, 0, 255, onTrackbar_partial)
