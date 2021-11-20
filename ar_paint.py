@@ -136,15 +136,15 @@ def keyboardCommands(key, parameters, canvas):
 
 # <==================================================RULES================================================>
 def rules():
-    print('RULES: ')
-    print('Press' + Fore.BLUE + 'b' + Style.RESET_ALL + 'to paint blue.')
-    print('Press' + Fore.GREEN + 'g' + Style.RESET_ALL + 'to paint green.')
-    print('Press' + Fore.RED + 'r' + Style.RESET_ALL + 'to paint red.')
-    print('Press' + Fore.YELLOW + '+' + Style.RESET_ALL + 'to get bigger radius.')
-    print('Press' + Fore.YELLOW + '-' + Style.RESET_ALL + 'to get smaller radius.')
-    print('Press' + Fore.YELLOW + 'c' + Style.RESET_ALL + 'to clear the window.')
-    print('Press' + Fore.YELLOW + 'w' + Style.RESET_ALL + 'to write the drawn image.')
-    print('Press' + Fore.YELLOW + 'q' + Style.RESET_ALL + 'to close all windows.')
+    print(Back.MAGENTA + 'RULES: ' + Style.RESET_ALL)
+    print('Press ' + Fore.BLUE + 'b' + Style.RESET_ALL + ' to paint blue.')
+    print('Press ' + Fore.GREEN + 'g' + Style.RESET_ALL + ' to paint green.')
+    print('Press ' + Fore.RED + 'r' + Style.RESET_ALL + ' to paint red.')
+    print('Press ' + Fore.YELLOW + '+' + Style.RESET_ALL + ' to get bigger radius.')
+    print('Press ' + Fore.YELLOW + '-' + Style.RESET_ALL + ' to get smaller radius.')
+    print('Press ' + Fore.YELLOW + 'c' + Style.RESET_ALL + ' to clear the window.')
+    print('Press ' + Fore.YELLOW + 'w' + Style.RESET_ALL + ' to write the drawn image.')
+    print('Press ' + Fore.YELLOW + 'q' + Style.RESET_ALL + ' to close all windows.')
 
 
 if __name__ == "__main__":
