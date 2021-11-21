@@ -65,7 +65,7 @@ def main():
     _, frame = capture.read()
 
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
-    positions = [(0, 0), (0, 600), (650, 0), (1200, 0)]
+    positions = [(0, 0), (0, 600), (650, 0), (850, 0)]
     canvas = 255 * np.ones((1000, 1000, 3))
     canvas_frame = 255 * np.ones(frame.shape)
     h_canvas, w_canvas, _ = canvas.shape
