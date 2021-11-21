@@ -106,38 +106,53 @@ def main():
         contours, hierarchy = cv2.findContours(mask_closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         if len(contours) > 0: # Finds contour with maximum area and draws it on window "Largest Component"
+
+            c_area = max(contours, key=cv2.contourArea)
+            area_condition = cv2.contourArea(c_area)
+
             areas = [cv2.contourArea(c) for c in contours]
             max_index = np.argmax(areas)
             cnt_max = contours[max_index]
             mask_largest = cv2.fillPoly(frame_largest, pts=[cnt_max], color=(255, 255, 255))
-
             cv2.imshow(windows[2], mask_largest)
-
     # <=============================================  CANVAS DRAWING  =========================================>
+            if area_condition > 350:  # Area must be at least 350 pixels
+                M = cv2.moments(cnt_max)    # Finds the object's moments
+                cX = int(M['m10']/M['m00']) # With the moments, calculates the object's centroid
+                cY = int(M['m01'] / M['m00'])
 
-            M = cv2.moments(cnt_max)    # Finds the object's moments
-            cX = int(M['m10']/M['m00']) # With the moments, calculates the object's centroid
-            cY = int(M['m01'] / M['m00'])
+                x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
+                y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
 
-            x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
-            y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
+                cv2.circle(canvas, (x, y), parameters['radius'], parameters['color'], -1)  # Draws a filled circle
 
-            cv2.circle(canvas, (x, y), parameters['radius'], parameters['color'], -1)  # Draws a filled circle
+                if previous_point_canvas is not None:
+                    cv2.line(canvas, previous_point_canvas, (x, y), parameters['color'], 2 * parameters['radius'])
+                    # Draws a line
+                if not args['draw_on_video']:
+                    cv2.imshow(windows[3], canvas)
+                elif args['draw_on_video']:
+                    cv2.circle(canvas_frame, (cX, cY), parameters['radius'], parameters['color'], -1)
+                    if previous_point_frame is not None:
+                        cv2.line(canvas_frame, previous_point_frame, (cX, cY), parameters['color'],
+                                 2 * parameters['radius'])
 
-            if previous_point_canvas is not None:
-                cv2.line(canvas, previous_point_canvas, (x, y), parameters['color'], 2 * parameters['radius'])
-                # Draws a line
-            if not args['draw_on_video']:
-                cv2.imshow(windows[3], canvas)
-            elif args['draw_on_video']:
-                cv2.circle(canvas_frame, (cX, cY), parameters['radius'], parameters['color'], -1)
-                if previous_point_frame is not None:
-                    cv2.line(canvas_frame, previous_point_frame, (cX, cY), parameters['color'],
-                             2 * parameters['radius'])
-
-            previous_point_canvas = (x, y)
-            previous_point_frame = (cX, cY)
+                previous_point_canvas = (x, y)
+                previous_point_frame = (cX, cY)
+            else:
+                if args['use_shake_prevention']:
+                    previous_point_canvas = None
+                    previous_point_frame = None
+                else:
+                    previous_point_canvas = previous_point_canvas
+                    previous_point_frame = previous_point_frame
         else:
+            if args['use_shake_prevention']:
+                previous_point_canvas = None
+                previous_point_frame = None
+            else:
+                previous_point_canvas = previous_point_canvas
+                previous_point_frame = previous_point_frame
             cv2.imshow(windows[2], frame_largest)
 
         if args['draw_on_video']:
@@ -158,24 +173,31 @@ def main():
 def keyboardCommands(key, parameters, canvas):
     if key == 114:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
+        print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
 
     elif key == 103:  # Press 'g' to paint green
         parameters['color'] = (0, 255, 0)
+        print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
 
     elif key == 98:  # Press 'b' to paint blue
         parameters['color'] = (255, 0, 0)
+        print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
 
     elif key == 43:  # Press '+' to get bigger radius
         parameters['radius'] += 1
+        print('Brush size is now ' + str(parameters['radius']))
 
     elif key == 45:  # Press '-' to get smaller radius
         if parameters['radius'] > 1:
             parameters['radius'] -= 1
+            print('Brush size is now ' + str(parameters['radius']))
     elif key == 99:  # Press 'c' to clear the window
         canvas = canvas.fill((255, 255, 255))
+        print('You cleared the window.')
 
     elif key == 119:  # Press 'w' to write the drawn image
-        cv2.imwrite('drawing' + ctime() + '.png', canvas)
+        cv2.imwrite('drawing ' + ctime() + '.png', canvas)
+        print('You saved the drawing.')
 
 
     return parameters
@@ -197,3 +219,4 @@ def rules():
 
 if __name__ == "__main__":
     main()
+
