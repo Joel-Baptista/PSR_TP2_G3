@@ -5,6 +5,7 @@ import cv2
 import argparse
 import json
 import numpy as np
+import os
 from time import time, ctime, sleep
 
 
@@ -17,6 +18,7 @@ def colormask(img):
     mask = cv2.bitwise_or(mask, mask_B)
 
     return mask
+
 
 def paintMode():
     parser = argparse.ArgumentParser(description="PSR AR Paint")
@@ -46,6 +48,7 @@ def JsonReader(json_file): # Read and format json file information
 
 
 def main():
+
     # <===========================================  INITIALIZATION  =========================================>
 
     parameters = {'color': (0, 0, 255), 'radius': 5}
@@ -79,7 +82,9 @@ def main():
     cv2.imshow(windows[3], canvas)
 
     while True:
+
         # <===========================================  FRAME CAPTURE  ===========================================>
+
         _, frame = capture.read()
 
         frame_GUI = copy.deepcopy(frame)
@@ -115,7 +120,9 @@ def main():
             cnt_max = contours[max_index]
             mask_largest = cv2.fillPoly(frame_largest, pts=[cnt_max], color=(255, 255, 255))
             cv2.imshow(windows[2], mask_largest)
+
     # <=============================================  CANVAS DRAWING  =========================================>
+
             if area_condition > 350:  # Area must be at least 350 pixels
                 M = cv2.moments(cnt_max)    # Finds the object's moments
                 cX = int(M['m10']/M['m00']) # With the moments, calculates the object's centroid
@@ -164,22 +171,23 @@ def main():
 
         key = cv2.waitKey(1)  # keyboard command
         parameters = keyboardCommands(key, parameters, frame)
-        if key == 113:  # Press 'q' to close the windows
+        if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
             break
 
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
+
 def keyboardCommands(key, parameters, canvas):
-    if key == 114:    # Press 'r' to paint red
+    if key == 114 or key == 82:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
         print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
 
-    elif key == 103:  # Press 'g' to paint green
+    elif key == 103 or key == 71:  # Press 'g' to paint green
         parameters['color'] = (0, 255, 0)
         print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
 
-    elif key == 98:  # Press 'b' to paint blue
+    elif key == 98 or key == 66:  # Press 'b' to paint blue
         parameters['color'] = (255, 0, 0)
         print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
 
@@ -191,19 +199,19 @@ def keyboardCommands(key, parameters, canvas):
         if parameters['radius'] > 1:
             parameters['radius'] -= 1
             print('Brush size is now ' + str(parameters['radius']))
-    elif key == 99:  # Press 'c' to clear the window
+    elif key == 99 or key == 67:  # Press 'c' to clear the window
         canvas = canvas.fill((255, 255, 255))
         print('You cleared the window.')
 
-    elif key == 119:  # Press 'w' to write the drawn image
-        cv2.imwrite('drawing ' + ctime() + '.png', canvas)
+    elif key == 119 or key == 87:  # Press 'w' to write the drawn image
+        path = '/home/pedro/workingcopy/PSR_TP2_G3/Drawings'
+        cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), canvas)
         print('You saved the drawing.')
-
 
     return parameters
 
-
     # <==================================================  RULES  =========================================>
+
 
 def rules():
     print(Back.MAGENTA + 'RULES: ' + Style.RESET_ALL)
