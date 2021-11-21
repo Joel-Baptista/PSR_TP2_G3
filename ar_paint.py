@@ -68,7 +68,7 @@ def main():
     _, frame = capture.read()
 
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
-    positions = [(0, 0), (0, 600), (650, 0), (1200, 0)]
+    positions = [(0, 0), (0, 600), (650, 0), (850, 0)]
     canvas = 255 * np.ones((1000, 1000, 3))
     canvas_frame = 255 * np.ones(frame.shape)
     h_canvas, w_canvas, _ = canvas.shape
@@ -146,14 +146,9 @@ def main():
 
                 previous_point_canvas = (x, y)
                 previous_point_frame = (cX, cY)
-            else:
-                if args['use_shake_prevention']:
-                    previous_point_canvas = None
-                    previous_point_frame = None
-                else:
-                    previous_point_canvas = previous_point_canvas
-                    previous_point_frame = previous_point_frame
+
         else:
+
             if args['use_shake_prevention']:
                 previous_point_canvas = None
                 previous_point_frame = None
@@ -162,15 +157,20 @@ def main():
                 previous_point_frame = previous_point_frame
             cv2.imshow(windows[2], frame_largest)
 
+        key = cv2.waitKey(1)  # keyboard command
+
         if args['draw_on_video']:
             mask_frame = colormask(canvas_frame)
             frame_draw[mask_frame > 0] = canvas_frame[mask_frame > 0]
             cv2.imshow(windows[3], frame_draw)
+            parameters, canvas_frame, previous_point_frame = \
+                keyboardCommands(key, parameters, canvas_frame, frame_draw, previous_point_frame)
         elif not args['draw_on_video']:
             cv2.imshow(windows[3], canvas)
+            parameters, canvas, previous_point_canvas = \
+                keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
 
-        key = cv2.waitKey(1)  # keyboard command
-        parameters = keyboardCommands(key, parameters, frame)
+
         if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
             break
@@ -178,7 +178,7 @@ def main():
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
 
-def keyboardCommands(key, parameters, canvas):
+def keyboardCommands(key, parameters, canvas, image, previous_point):
     if key == 114 or key == 82:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
         print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
@@ -200,15 +200,17 @@ def keyboardCommands(key, parameters, canvas):
             parameters['radius'] -= 1
             print('Brush size is now ' + str(parameters['radius']))
     elif key == 99 or key == 67:  # Press 'c' to clear the window
-        canvas = canvas.fill((255, 255, 255))
-        print('You cleared the window.')
+        canvas = np.ones(canvas.shape) * 255
+        print('<=======You cleared the window===========>')
+        previous_point = None
+
 
     elif key == 119 or key == 87:  # Press 'w' to write the drawn image
-        path = '/home/pedro/workingcopy/PSR_TP2_G3/Drawings'
-        cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), canvas)
+        path = './'
+        cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), image)
         print('You saved the drawing.')
 
-    return parameters
+    return parameters, canvas, previous_point
 
     # <==================================================  RULES  =========================================>
 
