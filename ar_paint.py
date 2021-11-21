@@ -151,9 +151,11 @@ def main():
         key = cv2.waitKey(1)  # keyboard command
 
         if args['draw_on_video']:
-            parameters, canvas_frame = keyboardCommands(key, parameters, canvas_frame, frame_draw)
+            parameters, canvas_frame, previous_point_frame = \
+                keyboardCommands(key, parameters, canvas_frame, frame_draw, previous_point_frame)
         else:
-            parameters, canvas = keyboardCommands(key, parameters, canvas, canvas)
+            parameters, canvas, previous_point_canvas = \
+                keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
 
         if key == 113:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
@@ -162,7 +164,7 @@ def main():
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
 
-def keyboardCommands(key, parameters, canvas, image):
+def keyboardCommands(key, parameters, canvas, image, previous_point):
     if key == 114:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
 
@@ -180,15 +182,14 @@ def keyboardCommands(key, parameters, canvas, image):
             parameters['radius'] -= 1
     elif key == 99:  # Press 'c' to clear the window
         canvas = np.ones(canvas.shape) * 255
+        previous_point = None
 
     elif key == 119:  # Press 'w' to write the drawn image
         cv2.imwrite('drawing' + ctime() + '.png', image)
 
-
-    return parameters, canvas
-
-
+    return parameters, canvas, previous_point
     # <==================================================  RULES  =========================================>
+
 
 def rules():
     print(Back.MAGENTA + 'RULES: ' + Style.RESET_ALL)
