@@ -5,7 +5,7 @@
 # Course: PSR
 # Class: Aula 7
 # Date: 17 Nov. 2021
-# Description: Avaliação 2 (PSR Augmented Reality Paint)
+# Description: Avaliação 2 (PSR Augmented Reality Paint) - Color Segmentation File
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Importing Packages
@@ -25,6 +25,8 @@ maximumg = 255
 minimumr = 0
 maximumr = 255
 
+
+# Define trackbars' functions
 def ontrackbarminb(minb):
     global minimumb
     minimumb = minb
@@ -60,7 +62,6 @@ def main():
     # <================================================  INITIALIZATION  ==============================================>
 
     capture = cv2.VideoCapture(0)
-    # window_name_original = 'Camera'
 
     # Display Initial Relevant Info
     if capture.isOpened() is True:
@@ -69,8 +70,8 @@ def main():
         print(Fore.RED + 'Press q to exit without saving the threshold' + Fore.RESET)
 
     # Create Window (600 x 600) to display Normal Image
-    cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Camera', 600, 600)
+    cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Original', 600, 600)
 
     # Create Window to display Segmented Image
     window_name = 'Segmented'
@@ -78,7 +79,7 @@ def main():
 
     # <==================================================  TRACKBARS  ================================================>
 
-    # Implement a Set of Trackbars in Order to User be Able to Control Values of Binarization Threshold
+    # Implement a Set of Trackbars in Order to User be Able to Control Values (0 - 255) of Binarization Threshold
     cv2.createTrackbar('min B', window_name, 0, 255, ontrackbarminb)
     cv2.createTrackbar('max B', window_name, 0, 255, ontrackbarmaxb)
     cv2.createTrackbar('min G', window_name, 0, 255, ontrackbarming)
@@ -101,24 +102,24 @@ def main():
 
     # <==========================================  COLOR SEGMENTATION RESULTS  ========================================>
 
-    #
+    # Real-time Update of Trackbars' Values
     while capture.isOpened():
-        _, frame = capture.read()  #
-        cv2.imshow('Camera', frame)  # Display Normal Image
+        _, frame = capture.read()  # Get an Image from the Camera
+        cv2.imshow('Original', frame)  # Display Image from the Camera
 
-        #
+        # Achieve Ranges for each Value of RGB Channels
         ranges = {'limits': {'B': {'min': minimumb, 'max': maximumb},
                              'G': {'min': minimumg, 'max': maximumg},
                              'R': {'min': minimumr, 'max': maximumr}}}
 
-        #
+        # Convert Ranges Dictionary into Numpy Arrays
         mins = np.array([ranges['limits']['B']['min'], ranges['limits']['G']['min'], ranges['limits']['R']['min']])
         maxs = np.array([ranges['limits']['B']['max'], ranges['limits']['G']['max'], ranges['limits']['R']['max']])
 
-        #
+        # Create Mask for Color Segmentation
         mask = cv2.inRange(frame, mins, maxs)
 
-        #
+        # Apply and show Created Mask in Color Segmentation Window (600 x 600)
         cv2.imshow('Segmented', mask)
         cv2.namedWindow('Segmented', cv2.WINDOW_NORMAL)
         cv2.resizeWindow('Segmented', 600, 600)
@@ -127,13 +128,13 @@ def main():
 
         key = cv2.waitKey(1)  # Wait a Key to stop the Program
 
-        # Use "q" (Quit) Key to End the Program without saving the JSON File
-        if key == ord('q'):
+        # Use "q" or "Q" (Quit) Key to End the Program without saving the JSON File
+        if key == 113 or key == 81:
             print('\nProgram ending without saving progress')
             break
 
-        # Use "w" (Write) Key to End the Program saving and writing the JSON File
-        elif key == ord('w'):
+        # Use "w" or "W" (Write) Key to End the Program saving and writing the JSON File
+        elif key == 119 or key == 87:
             file_name = 'limits.json'
             with open(file_name, 'w') as file_handle:
                 print('\nWriting color limits to file ' + file_name)
@@ -141,7 +142,7 @@ def main():
                 json.dump(ranges, file_handle)
             break
 
-    # <===========================================  TERMINATING  =========================================>
+    # <=================================================  TERMINATING  ===============================================>
 
     capture.release()
     cv2.destroyAllWindows()
