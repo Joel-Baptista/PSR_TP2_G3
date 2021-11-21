@@ -7,8 +7,20 @@ import json
 import numpy as np
 from time import time, ctime, sleep
 
+
+def colormask(img):
+    mask_R = cv2.inRange(img, (0, 0, 0), (0, 0, 255))
+    mask_G = cv2.inRange(img, (0, 0, 0), (0, 255, 0))
+    mask_B = cv2.inRange(img, (0, 0, 0), (255, 0, 0))
+
+    mask = cv2.bitwise_or(mask_R, mask_G)
+    mask = cv2.bitwise_or(mask, mask_B)
+
+    return mask
+
 def paintMode():
     parser = argparse.ArgumentParser(description="PSR AR Paint")
+    parser.add_argument('-j', '--json', type=str, help='Path to JSON file')
     parser.add_argument('-usp',
                         '--use_shake_prevention',
                         help="Use Shake Detection.",
@@ -37,13 +49,13 @@ def main():
     # <===========================================  INITIALIZATION  =========================================>
 
     parameters = {'color': (0, 0, 255), 'radius': 5}
+    previous_point_canvas = None
+    previous_point_frame = None
     rules()
 
     # <======================================  GET LIMITS ON JSON FILE  ====================================>
 
-    parser = argparse.ArgumentParser(description='JSON file with limits information')
-    parser.add_argument('-j', '--json', type=str, help='Path to JSON file')
-    args = vars(parser.parse_args())
+    args = paintMode()
 
     lim_R, lim_G, lim_B = JsonReader(args['json'])
 
@@ -54,23 +66,25 @@ def main():
 
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
     positions = [(0, 0), (0, 600), (650, 0), (1200, 0)]
-    canvas = 255*np.ones(frame.shape)
+    canvas = 255 * np.ones((1000, 1000, 3))
+    canvas_frame = 255 * np.ones(frame.shape)
+    h_canvas, w_canvas, _ = canvas.shape
+    h_frame, w_frame, _ = frame.shape
 
     for window, position in zip(windows, positions): # Showing and positioning windows
         cv2.namedWindow(window)
         cv2.moveWindow(window, position[0], position[1])
 
     kernel = np.ones((2, 2), np.uint8) # for pre-processing images
-
     cv2.imshow(windows[3], canvas)
+
     while True:
-
-    # <===========================================  FRAME CAPTURE  ===========================================>
-
+        # <===========================================  FRAME CAPTURE  ===========================================>
         _, frame = capture.read()
 
         frame_GUI = copy.deepcopy(frame)
         frame_GUI = cv2.flip(frame_GUI, 1)
+        frame_draw = copy.deepcopy(frame_GUI)
         frame_largest = np.zeros(frame.shape)
 
         cv2.imshow(windows[0], frame_GUI)
@@ -101,15 +115,37 @@ def main():
 
     # <=============================================  CANVAS DRAWING  =========================================>
 
-            M = cv2.moments(cnt_max)
-            cX = int(M['m10']/M['m00'])
+            M = cv2.moments(cnt_max)    # Finds the object's moments
+            cX = int(M['m10']/M['m00']) # With the moments, calculates the object's centroid
             cY = int(M['m01'] / M['m00'])
 
-            cv2.imshow(windows[3], canvas)
+            x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
+            y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
 
-            cv2.circle(canvas, (cX, cY), parameters['radius'], parameters['color'], -1)
+            cv2.circle(canvas, (x, y), parameters['radius'], parameters['color'], -1)  # Draws a filled circle
+
+            if previous_point_canvas is not None:
+                cv2.line(canvas, previous_point_canvas, (x, y), parameters['color'], 2 * parameters['radius'])
+                # Draws a line
+            if not args['draw_on_video']:
+                cv2.imshow(windows[3], canvas)
+            elif args['draw_on_video']:
+                cv2.circle(canvas_frame, (cX, cY), parameters['radius'], parameters['color'], -1)
+                if previous_point_frame is not None:
+                    cv2.line(canvas_frame, previous_point_frame, (cX, cY), parameters['color'],
+                             2 * parameters['radius'])
+
+            previous_point_canvas = (x, y)
+            previous_point_frame = (cX, cY)
         else:
             cv2.imshow(windows[2], frame_largest)
+
+        if args['draw_on_video']:
+            mask_frame = colormask(canvas_frame)
+            frame_draw[mask_frame > 0] = canvas_frame[mask_frame > 0]
+            cv2.imshow(windows[3], frame_draw)
+        elif not args['draw_on_video']:
+            cv2.imshow(windows[3], canvas)
 
         key = cv2.waitKey(1)  # keyboard command
         parameters = keyboardCommands(key, parameters, frame)
