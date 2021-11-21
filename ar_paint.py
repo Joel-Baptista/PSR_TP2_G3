@@ -107,8 +107,8 @@ def main():
 
         if len(contours) > 0: # Finds contour with maximum area and draws it on window "Largest Component"
 
-            c_area = max(contours, key=cv2.contourArea)
-            area_condition = cv2.contourArea(c_area)
+            area = max(contours, key=cv2.contourArea)
+            area_condition = cv2.contourArea(area)
 
             areas = [cv2.contourArea(c) for c in contours]
             max_index = np.argmax(areas)
