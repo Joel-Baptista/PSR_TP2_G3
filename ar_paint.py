@@ -144,18 +144,25 @@ def main():
             mask_frame = colormask(canvas_frame)
             frame_draw[mask_frame > 0] = canvas_frame[mask_frame > 0]
             cv2.imshow(windows[3], frame_draw)
+
         elif not args['draw_on_video']:
             cv2.imshow(windows[3], canvas)
 
         key = cv2.waitKey(1)  # keyboard command
-        parameters = keyboardCommands(key, parameters, frame)
+
+        if args['draw_on_video']:
+            parameters, canvas_frame = keyboardCommands(key, parameters, canvas_frame, frame_draw)
+        else:
+            parameters, canvas = keyboardCommands(key, parameters, canvas, canvas)
+
         if key == 113:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
             break
 
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
-def keyboardCommands(key, parameters, canvas):
+
+def keyboardCommands(key, parameters, canvas, image):
     if key == 114:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
 
@@ -172,13 +179,13 @@ def keyboardCommands(key, parameters, canvas):
         if parameters['radius'] > 1:
             parameters['radius'] -= 1
     elif key == 99:  # Press 'c' to clear the window
-        canvas = canvas.fill((255, 255, 255))
+        canvas = np.ones(canvas.shape) * 255
 
     elif key == 119:  # Press 'w' to write the drawn image
-        cv2.imwrite('drawing' + ctime() + '.png', canvas)
+        cv2.imwrite('drawing' + ctime() + '.png', image)
 
 
-    return parameters
+    return parameters, canvas
 
 
     # <==================================================  RULES  =========================================>
