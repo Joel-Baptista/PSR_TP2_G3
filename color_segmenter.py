@@ -12,7 +12,7 @@
 import cv2
 import numpy as np
 import json
-from colorama import Back, Fore
+from colorama import Back, Fore, Style
 
 # <=================================================  Global Variables  ===============================================>
 
@@ -61,14 +61,20 @@ def main():
 
     # <================================================  INITIALIZATION  ==============================================>
 
+    print(Fore.RED + "\nPSR " + Style.RESET_ALL +
+          'Augmented Reality Paint, Beatriz Borges, Joel Baptista, José Cozinheiro, Tiago Fonte, November 2021\n')
+
     capture = cv2.VideoCapture(0)
 
     # Display Initial Relevant Info
     if capture.isOpened() is True:
         print('\n' + Back.GREEN + 'Starting video' + Back.RESET)
+        print(Fore.RED + 'Press q to exit without saving the threshold' + Fore.RESET)
         print('\n' + Fore.CYAN + 'Press w to exit and save color limits to file' + Fore.RESET)
-        print(Fore.RED + 'P'
-                         'ress q to exit without saving the threshold' + Fore.RESET)
+
+    else:
+        print('\n' + Fore.RED + '!Error acessing Camera!' + Fore.RESET)
+        print('Hint: Are you using it in another app?')
 
     # Create Window (600 x 600) to display Normal Image
     cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
