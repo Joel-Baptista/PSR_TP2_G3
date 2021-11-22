@@ -14,15 +14,16 @@ def r_rect(event, x, y, flags, params):
     global p1, p2, drawing
 
     if event == cv2.EVENT_LBUTTONDOWN:
-        if drawing is False:
-            drawing = True
-            p1 = (x, y)
-        else:
-            drawing = False
+        drawing = True
+        p1 = (x, y)
 
     elif event == cv2.EVENT_MOUSEMOVE:
-        if drawing is True:
-            p2 = (x, y)
+        drawing = True
+        p2 = (x, y)
+
+    elif event == cv2.EVENT_LBUTTONUP:
+        drawing = False
+        #cv2.rectangle(canvas, (xi, yi), (x, y), (0, 255, 0), -1)
 
 def c_circle(event, x, y, canvas):
     global xi, yi, drawing, r
@@ -32,11 +33,11 @@ def c_circle(event, x, y, canvas):
         xi, yi = x, y
 
     elif event == cv2.EVENT_MOUSEMOVE:
-        drawing == True
+        drawing = True
 
     elif event == cv2.EVENT_LBUTTONUP:
         r = int(math.sqrt(((xi - x) ** 2) + ((yi - y) ** 2)))
-        cv2.circle(canvas, (xi, yi), r, (0, 0, 255), thickness=1)
+        #cv2.circle(canvas, (xi, yi), r, (0, 0, 255), thickness=1)
         drawing = False
 
     return canvas
@@ -53,7 +54,7 @@ while True:
         if t == ord('r'):
             cv2.setMouseCallback("Frame", r_rect)
         elif t == ord('c'):
-            # Connects the mouse button to our callback function
+
             canvas = cv2.setMouseCallback('Frame', c_circle)
     if p1 and p2:
         cv2.rectangle(canvas, p1, p2, (0, 255, 0))
