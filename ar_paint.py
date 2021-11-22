@@ -8,6 +8,14 @@ import numpy as np
 import os
 from time import time, ctime, sleep
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Authors: Beatriz Borges, Joel Baptista, José Cozinheiro e Tiago Fonte
+# Course: PSR
+# Class: Aula 7
+# Date: 17 Nov. 2021
+# Description: Avaliação 2 (PSR Augmented Reality Paint) - ar_paint File
+# ----------------------------------------------------------------------------------------------------------------------
+
 
 def colormask(img):
     mask_R = cv2.inRange(img, (0, 0, 0), (0, 0, 255))
@@ -25,11 +33,15 @@ def paintMode():
     parser.add_argument('-j', '--json', type=str, help='Path to JSON file')
     parser.add_argument('-usp',
                         '--use_shake_prevention',
-                        help="Use Shake Detection.",
+                        help="Use Shake Detection",
                         action="store_true")
     parser.add_argument('-video',
                         '--draw_on_video',
-                        help="Use video stream as paint screen",
+                        help="Use Video Stream as Paint Screen",
+                        action="store_true")
+    parser.add_argument('-unp',
+                        '--use_numeric_paint',
+                        help="Use Numeric Paint",
                         action="store_true")
     args = vars(parser.parse_args())
     return args
@@ -51,6 +63,9 @@ def main():
 
     # <===========================================  INITIALIZATION  =========================================>
 
+    print(Fore.RED + "\nPSR " + Style.RESET_ALL +
+          'Augmented Reality Paint, Beatriz Borges, Joel Baptista, José Cozinheiro, Tiago Fonte, November 2021\n')
+
     parameters = {'color': (0, 0, 255), 'radius': 5}
     previous_point_canvas = None
     previous_point_frame = None
@@ -61,6 +76,20 @@ def main():
     args = paintMode()
 
     lim_R, lim_G, lim_B = JsonReader(args['json'])
+
+    # <======================================  MODES INFO ==================================================>
+
+    if args['use_shake_prevention']:
+        print('\nYou are using ' + Fore.CYAN + 'Shaking Prevention Mode' + Fore.RESET)
+
+    if args['draw_on_video']:
+        print('\nYou are using ' + Fore.CYAN + 'Stream on Video Mode' + Fore.RESET)
+
+    if args['use_numeric_paint']:
+        print('\nYou are using ' + Fore.CYAN + 'Numeric Paint Mode' + Fore.RESET)
+        print('Index 1 must be Paint with ' + Back.RED + 'Red' + Back.RESET + ' Color')
+        print('Index 2 must be Paint with ' + Back.GREEN + 'Green' + Back.RESET + ' Color')
+        print('Index 3 must be Paint with ' + Back.BLUE + 'Blue' + Back.RESET + ' Color')
 
     # <===========================================  VIDEO CAPTURE  =========================================>
 
@@ -170,6 +199,23 @@ def main():
             parameters, canvas, previous_point_canvas = \
                 keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
 
+        if args['use_numeric_paint']:
+            down_tol = 0.2
+            up_tol = 0.8
+            pts = [[0, randint(int(down_tol * blank_image.shape[0]), int(up_tol * blank_image.shape[0]))],
+                   [randint(int(down_tol * blank_image.shape[1]), int(blank_image.shape[1] / 2)),
+                    randint(int(down_tol * blank_image.shape[0]), int(up_tol * blank_image.shape[0]))],
+                   [randit]]
+
+            region_colors = {}
+            colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+
+            for centroids_coordinates_key, centroid_coordinates_value in centroids_coordinates.items():
+                random_idx = radiant(1, 4)
+                region_colors[centroids_coordinates_key] = {}
+                region_colors[centroids_coordinates_key] ['color_idx'] = random_idx
+                region_colors[centroids_coordinates_key] ['color'] = colors[random_idx - 1]
+                blank_image = cv2.putText(blank_image, str(random_idx), (int(centroid_coordinates_value[0])))
 
         if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
