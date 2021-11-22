@@ -245,12 +245,13 @@ def keyboardCommands(key, parameters, canvas, image, previous_point):
         if parameters['radius'] > 1:
             parameters['radius'] -= 1
             print('Brush size is now ' + str(parameters['radius']))
+    elif key == 120 or key == 88:   # Press 'x' to erase lines
+        parameters['color'] = (255, 255, 255)
+        print('You are now using the eraser')
     elif key == 99 or key == 67:  # Press 'c' to clear the window
         canvas = np.ones(canvas.shape) * 255
         print('<=======You cleared the window===========>')
         previous_point = None
-
-
     elif key == 119 or key == 87:  # Press 'w' to write the drawn image
         path = './'
         cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), image)
