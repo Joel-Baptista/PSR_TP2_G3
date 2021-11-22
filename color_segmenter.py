@@ -67,7 +67,8 @@ def main():
     if capture.isOpened() is True:
         print('\n' + Back.GREEN + 'Starting video' + Back.RESET)
         print('\n' + Fore.CYAN + 'Press w to exit and save color limits to file' + Fore.RESET)
-        print(Fore.RED + 'Press q to exit without saving the threshold' + Fore.RESET)
+        print(Fore.RED + 'P'
+                         'ress q to exit without saving the threshold' + Fore.RESET)
 
     # Create Window (600 x 600) to display Normal Image
     cv2.namedWindow('Original', cv2.WINDOW_NORMAL)

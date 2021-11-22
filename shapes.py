@@ -2,15 +2,15 @@
 import cv2
 import numpy as np
 import math
+import colorama
+from colorama import Fore, Back, Style
 
 drawing = False
 xi, yi = -1, -1
 r = 0
 p1 = None
 p2 = None
-
-
-def r_rect(event, x, y):
+def r_rect(event, x, y, flags, params):
     global p1, p2, drawing
 
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -29,7 +29,6 @@ def c_circle(event, x, y, canvas):
 
     if event == cv2.EVENT_LBUTTONDOWN:
         drawing = True
-        # we take note of where that mouse was located
         xi, yi = x, y
 
     elif event == cv2.EVENT_MOUSEMOVE:
@@ -64,7 +63,9 @@ while True:
     cv2.imshow("Frame", canvas)
 
     key = cv2.waitKey(10)
-    if key == 27:
+    if key == 113:
+        print(Back.LIGHTYELLOW_EX + Fore.BLACK + 'You pressed "q" so you quit the program.'+ Style.RESET_ALL)
+
         break
 
 
