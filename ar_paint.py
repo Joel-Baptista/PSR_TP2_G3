@@ -199,10 +199,8 @@ def main():
             parameters, canvas, previous_point_canvas = \
                 keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
 
-        # if args['use_numeric_paint']:
-           # print('\n Index 1 must be Paint with ' + Back.RED + 'Red ' + Back.RESET + 'Color')
-           # print('\n Index 2 must be Paint with ' + Back.GREEN + 'Green ' + Back.RESET + 'Color')
-           # print('\n Index 3 must be Paint with ' + Back.BLUE + 'Blue ' + Back.RESET + 'Color')
+        if args['use_numeric_paint']:
+            pass
 
         if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
