@@ -269,6 +269,7 @@ def rules():
     print('Press ' + Fore.RED + 'r' + Style.RESET_ALL + ' to paint red.')
     print('Press ' + Fore.YELLOW + '+' + Style.RESET_ALL + ' to get bigger radius.')
     print('Press ' + Fore.YELLOW + '-' + Style.RESET_ALL + ' to get smaller radius.')
+    print('Press ' + Fore.YELLOW + 'x' + Style.RESET_ALL + ' to erase.')
     print('Press ' + Back.YELLOW + Fore.BLACK + 'C' + Style.RESET_ALL + ' to clear the window.')
     print('Press ' + Fore.LIGHTBLUE_EX + 'W' + Style.RESET_ALL + ' to write the drawn image.')
     print('Press ' + Back.RED + Fore.YELLOW + 'q' + Style.RESET_ALL + ' to close all windows.')
