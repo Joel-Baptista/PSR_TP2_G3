@@ -200,7 +200,8 @@ def main():
                 keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
 
         if args['use_numeric_paint']:
-            pass
+            teste.py()
+            cv2.waitKey(0)  # wait for a key press before proceeding
 
         if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
