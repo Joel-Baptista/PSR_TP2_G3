@@ -140,69 +140,90 @@ def main():
 
         canvas_draw = copy.deepcopy(canvas)
         k = cv2.waitKey(1) & 0xFF
-        if k == ord('r'):
+        canvas, canvas_draw, coordinates, mode_square, mode_circle, mode_elipse = \
+            second(coordinates, mode_square, mode_circle, mode_elipse, canvas, canvas_draw, k, 'image')
 
-            if not mode_square['first']:
-
-                coordinates['1'] = coordinates['mouse']
-
-                mode_square['first'] = True
-                mode_circle['first'] = False
-                mode_elipse['first'] = False
-
-            elif mode_square['first'] and not mode_square['second']:
-
-                coordinates['2'] = coordinates['mouse']
-                mode_square['second'] = True
-
-        elif k == ord('o'):
-
-            if not mode_circle['first']:
-
-                coordinates['1'] = coordinates['mouse']
-
-                mode_circle['first'] = True
-                mode_square['first'] = False
-                mode_elipse['first'] = False
-
-            elif mode_circle['first'] and not mode_circle['second']:
-                coordinates['2'] = coordinates['mouse']
-                mode_circle['second'] = True
-
-        elif k == ord('e'):
-
-            if not mode_elipse['first']:
-
-                coordinates['1'] = coordinates['mouse']
-
-                mode_elipse['first'] = True
-                mode_square['first'] = False
-                mode_circle['first'] = False
-
-            elif mode_elipse['first'] and not mode_elipse['second']:
-                coordinates['2'] = coordinates['mouse']
-                mode_elipse['second'] = True
-
-            elif mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']:
-                coordinates['3'] = coordinates['mouse']
-                mode_elipse['third'] = True
-
-        elif k == 113:
+        if k == ord('q'):
             break
 
-        if mode_square['first']:
-            canvas, canvas_draw, mode_square = \
-                drawFigure(coordinates, canvas, canvas_draw, mode_square)
-
-        if mode_circle['first']:
-            canvas, canvas_draw, mode_circle = \
-                drawFigure(coordinates, canvas, canvas_draw, mode_circle)
-
-        if mode_elipse['first']:
-            canvas, canvas_draw, mode_elipse = \
-                drawFigure(coordinates, canvas, canvas_draw, mode_elipse)
-
     cv2.destroyAllWindows()
+
+
+def second(coordinates, mode_square, mode_circle, mode_elipse, canvas, canvas_draw, key, window):
+    coordinates['mouse'] = mouse_coordinates
+
+    cond = (mode_square['first'] and not mode_square['second']) or \
+           (mode_circle['first'] and not mode_circle['second']) or \
+           (mode_elipse['first'] and not mode_elipse['second']) or \
+           (mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third'])
+
+    if cond:
+        cv2.imshow(window, canvas_draw)
+    else:
+        cv2.imshow(window, canvas)
+
+    canvas_draw = copy.deepcopy(canvas)
+
+    if key == ord('r'):
+
+        if not mode_square['first']:
+
+            coordinates['1'] = coordinates['mouse']
+
+            mode_square['first'] = True
+            mode_circle['first'] = False
+            mode_elipse['first'] = False
+
+        elif mode_square['first'] and not mode_square['second']:
+
+            coordinates['2'] = coordinates['mouse']
+            mode_square['second'] = True
+
+    elif key == ord('o'):
+
+        if not mode_circle['first']:
+
+            coordinates['1'] = coordinates['mouse']
+
+            mode_circle['first'] = True
+            mode_square['first'] = False
+            mode_elipse['first'] = False
+
+        elif mode_circle['first'] and not mode_circle['second']:
+            coordinates['2'] = coordinates['mouse']
+            mode_circle['second'] = True
+
+    elif key == ord('e'):
+
+        if not mode_elipse['first']:
+
+            coordinates['1'] = coordinates['mouse']
+
+            mode_elipse['first'] = True
+            mode_square['first'] = False
+            mode_circle['first'] = False
+
+        elif mode_elipse['first'] and not mode_elipse['second']:
+            coordinates['2'] = coordinates['mouse']
+            mode_elipse['second'] = True
+
+        elif mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']:
+            coordinates['3'] = coordinates['mouse']
+            mode_elipse['third'] = True
+
+    if mode_square['first']:
+        canvas, canvas_draw, mode_square = \
+            drawFigure(coordinates, canvas, canvas_draw, mode_square)
+
+    if mode_circle['first']:
+        canvas, canvas_draw, mode_circle = \
+            drawFigure(coordinates, canvas, canvas_draw, mode_circle)
+
+    if mode_elipse['first']:
+        canvas, canvas_draw, mode_elipse = \
+            drawFigure(coordinates, canvas, canvas_draw, mode_elipse)
+
+    return canvas, canvas_draw, coordinates, mode_square, mode_circle, mode_elipse
 
 
 if __name__ == "__main__":
