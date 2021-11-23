@@ -46,21 +46,16 @@ def main():
     # Initialization
     # ---------------------------------------------------
 
-    #blank_image = 255 * np.ones((600, 400, 3), np.uint8)
+    path = 'pinguim.png'
+    image_read = cv2.imread(path, cv2.IMREAD_COLOR)
     window_name = 'Image to draw in'
     global color
-    print('Click in the image to paint the pixel or click and drag to paint continuously.'
-          '\nPress r to change to red color.'
-          '\nPress g to change to green color.'
-          '\nPress b to change to blue color.'
-          '\nInitializing with red color as default.')
+
 
     while True:
         # Show image at every cycle
-        path = 'pinguim2.png'
-        path2 = cv2.imread(path, cv2.IMREAD_COLOR)
-        #cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-        cv2.imshow(window_name, path2)  # Display the image
+        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+        cv2.imshow(window_name, image_read)  # Display the image
 
         key = cv2.waitKey(10)
 
@@ -78,7 +73,7 @@ def main():
             break
 
         # Paint where the mouse clicked
-        cv2.setMouseCallback(window_name, onMouse, param=path2)
+        cv2.setMouseCallback(window_name, onMouse, param=image_read)
 
 
 if __name__ == "__main__":
