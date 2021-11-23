@@ -46,7 +46,7 @@ def main():
     # Initialization
     # ---------------------------------------------------
 
-    blank_image = 255 * np.ones((600, 400, 3), np.uint8)
+    #blank_image = 255 * np.ones((600, 400, 3), np.uint8)
     window_name = 'Image to draw in'
     global color
     print('Click in the image to paint the pixel or click and drag to paint continuously.'
@@ -57,10 +57,10 @@ def main():
 
     while True:
         # Show image at every cycle
-        path = 'pinguim.png'
+        path = 'pinguim2.png'
         path2 = cv2.imread(path, cv2.IMREAD_COLOR)
-        cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-        drawing2 = cv2.imshow(window_name, path2)  # Display the image
+        #cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+        cv2.imshow(window_name, path2)  # Display the image
 
         key = cv2.waitKey(10)
 
@@ -78,7 +78,7 @@ def main():
             break
 
         # Paint where the mouse clicked
-        cv2.setMouseCallback(window_name, onMouse, param=drawing2)
+        cv2.setMouseCallback(window_name, onMouse, param=path2)
 
 
 if __name__ == "__main__":
