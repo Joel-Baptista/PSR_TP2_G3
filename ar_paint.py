@@ -6,6 +6,7 @@ import argparse
 import json
 import numpy as np
 import os
+from datetime import datetime
 from time import time, ctime, sleep
 import math
 
@@ -362,7 +363,14 @@ def keyboardCommands(key, parameters, canvas, image, previous_point,args):
         previous_point = None
 
     elif key == 119 or key == 87:  # Press 'w' to write the drawn image
-        path = './'
+        today = datetime.now()
+        try:
+            os.makedirs('Drawings/' + today.strftime('%d %m %Y'))
+            print("\nToday's Directory Created")
+        except FileExistsError:
+            print("\nToday's Directory already exists")
+        path = ('Drawings/' + today.strftime('%d %m %Y'))
+
         cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), image)
         print('You saved the drawing.')
 
