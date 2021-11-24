@@ -44,6 +44,10 @@ def paintMode():
                         '--use_numeric_paint',
                         help="Use Numeric Paint",
                         action="store_true")
+    parser.add_argument('-inp',
+                        '--image_numeric_paint',
+                        help="Path to Image on Numeric Paint Mode (No Effect without Use Numeric Paint Argument",
+                        default='numeric_paint_images/pinguim.png')
     args = vars(parser.parse_args())
     return args
 
@@ -112,7 +116,7 @@ def main():
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
     positions = [(0, 0), (0, 600), (650, 0), (850, 0)]
     if args['use_numeric_paint']:
-        path = 'numeric_paint_images/turtle.png'
+        path = args['image_numeric_paint']
         canvas = cv2.imread(path, cv2.IMREAD_COLOR)
     else:
         canvas = 255 * np.ones((1000, 1000, 3))
@@ -343,17 +347,20 @@ def keyboardCommands(key, parameters, canvas, image, previous_point,args):
         if parameters['radius'] > 1:
             parameters['radius'] -= 1
             print('Brush size is now ' + str(parameters['radius']))
+
     elif key == 120 or key == 88:   # Press 'x' to erase lines
         parameters['color'] = (255, 255, 255)
         print('You are now using the eraser')
+
     elif key == 99 or key == 67:  # Press 'c' to clear the window
         if args['use_numeric_paint']:
-            path = 'numeric_paint_images/turtle.png'
+            path = args['image_numeric_paint']
             canvas = cv2.imread(path, cv2.IMREAD_COLOR)
         else:
             canvas = 255 * np.ones((1000, 1000, 3))
         print('<=======You cleared the window===========>')
         previous_point = None
+
     elif key == 119 or key == 87:  # Press 'w' to write the drawn image
         path = './'
         cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), image)
