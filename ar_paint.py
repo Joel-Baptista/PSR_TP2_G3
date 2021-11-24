@@ -31,7 +31,7 @@ def colormask(img):
 
 def paintMode():
     parser = argparse.ArgumentParser(description="PSR AR Paint")
-    parser.add_argument('-j', '--json', type=str, help='Path to JSON file')
+    parser.add_argument('-j', '--json', type=str, help='Path to JSON file (Uses limits.json by default)', default= 'limits.json')
     parser.add_argument('-usp',
                         '--use_shake_prevention',
                         help="Use Shake Detection",
@@ -206,8 +206,6 @@ def main():
                     previous_point_canvas = None
                     previous_point_frame = None
 
-
-
                     if not args['draw_on_video']:
                         if cond:
                             cv2.imshow(windows[3], initial_draw)
@@ -312,10 +310,6 @@ def main():
             cv2.imshow(windows[3], canvas)
             parameters, canvas, previous_point_canvas = \
                 keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
-
-        if args['use_numeric_paint']:
-            teste.py()
-            cv2.waitKey(0)  # wait for a key press before proceeding
 
         if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
@@ -470,7 +464,6 @@ def drawFigure(coordinates, canvas, canvas_save, mode, color, thinkness):
             mode['third'] = False
 
     return canvas, canvas_save, mode
-
 
 
 if __name__ == "__main__":

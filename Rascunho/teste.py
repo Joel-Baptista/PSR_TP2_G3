@@ -16,7 +16,7 @@ from time import time, ctime, sleep
 # Description: Avaliação 2 (PSR Augmented Reality Paint) - ar_paint File
 # ----------------------------------------------------------------------------------------------------------------------
 
-
+drawing = False
 def colormask(img):
     mask_R = cv2.inRange(img, (0, 0, 0), (0, 0, 255))
     mask_G = cv2.inRange(img, (0, 0, 0), (0, 255, 0))
@@ -69,7 +69,11 @@ def main():
     parameters = {'color': (0, 0, 255), 'radius': 5}
     previous_point_canvas = None
     previous_point_frame = None
-
+    x = None
+    y = None
+    cX = None
+    cY = None
+    event = None
     rules()
 
     # <======================================  GET LIMITS ON JSON FILE  ====================================>
@@ -203,20 +207,19 @@ def main():
                 cv2.destroyAllWindows()
                 break
     else:
-        key = cv2.waitKey(keyboardCommands)
         if args['use_numeric_paint']:
-            path = 'pinguim.png'
+            path = '../Numeric Paint Images/pinguim.png'
             image_read = cv2.imread(path, cv2.IMREAD_COLOR)
             window_name = 'Image to draw in'
             while True:
                 # Show image at every cycle
                 cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
                 cv2.imshow(window_name, image_read)  # Display the image
+
+                cv2.waitKey(10)
                 parameters, canvas, previous_point_canvas = \
                     keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
                 cv2.setMouseCallback(window_name, onMouse, param=image_read)
-
-
 
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
@@ -272,21 +275,20 @@ def rules():
     print('Press ' + Back.RED + Fore.YELLOW + 'q' + Style.RESET_ALL + ' to close all windows.')
 
 
-def onMouse(event, x, y, flags, param):
-    drawing = False
-    parameters = {'color': (0, 0, 255), 'radius': 5}
-
+def onMouse(event, x, y, flags, param, parameters):
+    global drawing
     if event == cv2.EVENT_LBUTTONDOWN:
         drawing = True
-        param[y, x] = parameters['color'], 2 * parameters['radius']
+        param[y, x] =
     if event == cv2.EVENT_LBUTTONUP:
         if drawing:
-            param[y, x] = parameters['color'], 2 * parameters['radius']
+            param[y, x] = parameters['color']
     if event == cv2.EVENT_MOUSEMOVE:
         drawing = False
-        param[y, x] = parameters['color'], 2 * parameters['radius']
+        # param[y, x] =
 
-    key = cv2.waitKey(keyboardCommands)  # wait for a key press before proceeding
+    cv2.waitKey(0)  # wait for a key press before proceeding
+
 
 if __name__ == "__main__":
     main()
