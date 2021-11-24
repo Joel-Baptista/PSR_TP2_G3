@@ -112,7 +112,7 @@ def main():
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
     positions = [(0, 0), (0, 600), (650, 0), (850, 0)]
     if args['use_numeric_paint']:
-        path = 'numeric_paint_images/pinguim.png'
+        path = 'numeric_paint_images/turtle.png'
         canvas = cv2.imread(path, cv2.IMREAD_COLOR)
     else:
         canvas = 255 * np.ones((1000, 1000, 3))
@@ -348,7 +348,7 @@ def keyboardCommands(key, parameters, canvas, image, previous_point,args):
         print('You are now using the eraser')
     elif key == 99 or key == 67:  # Press 'c' to clear the window
         if args['use_numeric_paint']:
-            path = 'numeric_paint_images/pinguim.png'
+            path = 'numeric_paint_images/turtle.png'
             canvas = cv2.imread(path, cv2.IMREAD_COLOR)
         else:
             canvas = 255 * np.ones((1000, 1000, 3))
