@@ -57,7 +57,7 @@ def main():
 
     while True:
         # Show image at every cycle
-        path = '../Numeric Paint Images/pinguim.png'
+        path = '../numeric_paint_images/pinguim.png'
         path2 = cv2.imread(path, cv2.IMREAD_COLOR)
         #cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
         cv2.imshow(window_name, path2)  # Display the image

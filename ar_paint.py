@@ -111,7 +111,11 @@ def main():
 
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
     positions = [(0, 0), (0, 600), (650, 0), (850, 0)]
-    canvas = 255 * np.ones((1000, 1000, 3))
+    if args['use_numeric_paint']:
+        path = 'numeric_paint_images/pinguim.png'
+        canvas = cv2.imread(path, cv2.IMREAD_COLOR)
+    else:
+        canvas = 255 * np.ones((1000, 1000, 3))
     canvas_frame = 255 * np.ones(frame.shape)
     h_canvas, w_canvas, _ = canvas.shape
     h_frame, w_frame, _ = frame.shape
@@ -305,11 +309,11 @@ def main():
             frame_draw[mask_frame > 0] = canvas_frame[mask_frame > 0]
             cv2.imshow(windows[3], frame_draw)
             parameters, canvas_frame, previous_point_frame = \
-                keyboardCommands(key, parameters, canvas_frame, frame_draw, previous_point_frame)
+                keyboardCommands(key, parameters, canvas_frame, frame_draw, previous_point_frame, args)
         elif not args['draw_on_video']:
             cv2.imshow(windows[3], canvas)
             parameters, canvas, previous_point_canvas = \
-                keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas)
+                keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas, args)
 
         if key == 113 or key == 81:  # Press 'q' to close the windows
             cv2.destroyAllWindows()
@@ -318,7 +322,7 @@ def main():
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
 
-def keyboardCommands(key, parameters, canvas, image, previous_point):
+def keyboardCommands(key, parameters, canvas, image, previous_point,args):
     if key == 114 or key == 82:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
         print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
@@ -343,7 +347,11 @@ def keyboardCommands(key, parameters, canvas, image, previous_point):
         parameters['color'] = (255, 255, 255)
         print('You are now using the eraser')
     elif key == 99 or key == 67:  # Press 'c' to clear the window
-        canvas = np.ones(canvas.shape) * 255
+        if args['use_numeric_paint']:
+            path = 'numeric_paint_images/pinguim.png'
+            canvas = cv2.imread(path, cv2.IMREAD_COLOR)
+        else:
+            canvas = 255 * np.ones((1000, 1000, 3))
         print('<=======You cleared the window===========>')
         previous_point = None
     elif key == 119 or key == 87:  # Press 'w' to write the drawn image

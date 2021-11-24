@@ -208,7 +208,7 @@ def main():
                 break
     else:
         if args['use_numeric_paint']:
-            path = '../Numeric Paint Images/pinguim.png'
+            path = '../numeric_paint_images/pinguim.png'
             image_read = cv2.imread(path, cv2.IMREAD_COLOR)
             window_name = 'Image to draw in'
             while True:
