@@ -2,6 +2,7 @@
 import copy
 from colorama import Fore, Back, Style
 import cv2
+from collections import deque
 import argparse
 import json
 import numpy as np
@@ -89,6 +90,8 @@ def main():
 
     rules()
 
+    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+
     # <======================================  GET LIMITS ON JSON FILE  ====================================>
 
     args = paintMode()
@@ -108,7 +111,7 @@ def main():
         print('Index 1 must be Paint with ' + Back.RED + 'Red' + Back.RESET + ' Color')
         print('Index 2 must be Paint with ' + Back.GREEN + 'Green' + Back.RESET + ' Color')
         print('Index 3 must be Paint with ' + Back.BLUE + 'Blue' + Back.RESET + ' Color')
-
+        print('Index 4 must be Paint with ' + Back.WHITE + 'White' + Back.RESET + ' Color')
     # <===========================================  VIDEO CAPTURE  =========================================>
 
     capture = cv2.VideoCapture(0)
@@ -121,6 +124,16 @@ def main():
         canvas = cv2.imread(path, cv2.IMREAD_COLOR)
     else:
         canvas = 255 * np.ones((1000, 1000, 3))
+        paint = cv2.rectangle(canvas, (100, 30), (225, 135), (0, 0, 0), 2)
+        paint = cv2.rectangle(canvas, (325, 30), (450, 135), colors[0], -1)
+        paint = cv2.rectangle(canvas, (550, 30), (675, 135), colors[1], -1)
+        paint = cv2.rectangle(canvas, (775, 30), (900, 135), colors[2], -1)
+        cv2.putText(paint, "CLEAR ALL", (120, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+        cv2.putText(paint, "BLUE", (360, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(paint, "GREEN", (585, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(paint, "RED", (820, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+        canvas_original = copy.deepcopy(canvas)
+
     canvas_frame = 255 * np.ones(frame.shape)
     h_canvas, w_canvas, _ = canvas.shape
     h_frame, w_frame, _ = frame.shape
@@ -186,6 +199,24 @@ def main():
 
                 x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
                 y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
+
+                center = (cX, cY)
+
+                if center[1] <= 137:
+                    if 100 <= center[0] <= 225:
+                        canvas = copy.deepcopy(canvas_original)
+                        print('<=======You cleared the window===========>')
+                    elif 375 <= center[0] <= 420:
+                        parameters['color'] = (255, 0, 0)
+                        print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
+                    elif 580 <= center[0] <= 635:
+                        parameters['color'] = (0, 255, 0)
+                        print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
+                    elif 800 <= center[0] <= 900:
+                        parameters['color'] = (0, 0, 255)
+                        print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
+
+                # points = [bpoints, gpoints, rpoints, ypoints]
 
                 cond = (mode_square['first'] and not mode_square['second']) or \
                        (mode_circle['first'] and not mode_circle['second']) or \
