@@ -253,7 +253,7 @@ def keyboardCommands(key, parameters, canvas, image, previous_point):
         print('<=======You cleared the window===========>')
         previous_point = None
     elif key == 119 or key == 87:  # Press 'w' to write the drawn image
-        path = './'
+        path = '../Rascunho/'
         cv2.imwrite(os.path.join(path, 'drawing ' + ctime() + '.png'), image)
         print('You saved the drawing.')
 

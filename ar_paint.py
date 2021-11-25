@@ -20,8 +20,7 @@ import math
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def colormask(img): # Definition of the color mask
-
+def colormask(img):
     mask_R = cv2.inRange(img, (0, 0, 0), (0, 0, 255))
     mask_G = cv2.inRange(img, (0, 0, 0), (0, 255, 0))
     mask_B = cv2.inRange(img, (0, 0, 0), (255, 0, 0))
@@ -32,18 +31,19 @@ def colormask(img): # Definition of the color mask
     return mask
 
 
-def paintMode(): # Gets parsers
-
+def paintMode():
     parser = argparse.ArgumentParser(description="PSR AR Paint")
     parser.add_argument('-j', '--json', type=str, help='Path to JSON file (Uses limits.json by default)', default= 'limits.json')
     parser.add_argument('-usp',
                         '--use_shake_prevention',
                         help="Use Shake Detection",
                         action="store_true")
+
     parser.add_argument('-video',
                         '--draw_on_video',
                         help="Use Video Stream as Paint Screen",
                         action="store_true")
+
     parser.add_argument('-unp',
                         '--use_numeric_paint',
                         help="Use Numeric Paint",
@@ -57,6 +57,12 @@ def paintMode(): # Gets parsers
                         '--mouse_mode',
                         help="Use Mouse to Paint",
                         action="store_true")
+
+    parser.add_argument('-deluxe',
+                        '--extra',
+                        help="Try one of our Extra Functionalities on White Canvas Mode, have fun!",
+                        action="store_true")
+
     args = vars(parser.parse_args())
     return args
 
@@ -73,7 +79,7 @@ def JsonReader(json_file): # Read and format json file information
     return R, G, B
 
 
-def MouseCallBack(event, x, y, flags, param): # Getting the mouse coordinates
+def MouseCallBack(event, x, y, flags, param):
     global mouse_position, is_clicked
     mouse_position = (x, y)
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -84,7 +90,7 @@ def MouseCallBack(event, x, y, flags, param): # Getting the mouse coordinates
         is_clicked = False
 
 
-def colorDetection(image, parameters, centroid): # Detects color of phone screen
+def colorDetection(image, parameters, centroid):
 
     B, G, R = cv2.split(image)
     mask = np.zeros(image.shape[:2])
@@ -98,7 +104,7 @@ def colorDetection(image, parameters, centroid): # Detects color of phone screen
 
     parameters['color'] = color
 
-    print('Brush is now ' + Back.WHITE + Fore.BLACK + ' personalized color.' + Style.RESET_ALL)
+    print('Brush is now ' + Back.GREEN + ' personalized color.' + Style.RESET_ALL)
 
     return parameters
 
@@ -140,6 +146,7 @@ def main():
     lim_R, lim_G, lim_B = JsonReader(args['json'])
 
     # <======================================  MODES INFO ==================================================>
+
     if args['use_shake_prevention']:
         print('\nYou are using ' + Fore.CYAN + 'Shaking Prevention Mode' + Fore.RESET)
 
@@ -170,15 +177,16 @@ def main():
         canvas = cv2.imread(path, cv2.IMREAD_COLOR)
     else:
         canvas = 255 * np.ones((1000, 1000, 3))
-        paint = cv2.rectangle(canvas, (100, 30), (225, 135), (0, 0, 0), 2)
-        paint = cv2.rectangle(canvas, (325, 30), (450, 135), colors[0], -1)
-        paint = cv2.rectangle(canvas, (550, 30), (675, 135), colors[1], -1)
-        paint = cv2.rectangle(canvas, (775, 30), (900, 135), colors[2], -1)
-        cv2.putText(paint, "CLEAR ALL", (120, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
-        cv2.putText(paint, "BLUE", (360, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(paint, "GREEN", (585, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(paint, "RED", (820, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
-        canvas_original = copy.deepcopy(canvas)
+        if args['extra']:
+            paint = cv2.rectangle(canvas, (100, 30), (225, 135), (0, 0, 0), 2)
+            paint = cv2.rectangle(canvas, (325, 30), (450, 135), colors[0], -1)
+            paint = cv2.rectangle(canvas, (550, 30), (675, 135), colors[1], -1)
+            paint = cv2.rectangle(canvas, (775, 30), (900, 135), colors[2], -1)
+            cv2.putText(paint, "CLEAR ALL", (120, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+            cv2.putText(paint, "BLUE", (360, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(paint, "GREEN", (585, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(paint, "RED", (820, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+            canvas_original = copy.deepcopy(canvas)
 
     canvas_frame = 255 * np.ones(frame.shape)
     h_canvas, w_canvas, _ = canvas.shape
@@ -252,7 +260,7 @@ def main():
 
     # <=============================================  CANVAS DRAWING  =========================================>
 
-                if area_condition > 350:  # Area of the largest component must be at least 350 pixels
+                if area_condition > 350:  # Area must be at least 350 pixels
                     if args['mouse_mode']:
                         cX = mouse_position[0]
                         x = mouse_position[0]
@@ -263,17 +271,17 @@ def main():
                         cX = int(M['m10'] / M['m00'])  # With the moments, calculates the object's centroid
                         cY = int(M['m01'] / M['m00'])
 
-                        x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes
+                        x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
                         y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
 
-                    cv2.add(frame_GUI, (-10, 60, -10, 0), dst=frame_GUI, mask=mask) # highlights mask in video
-                    cv2.putText(frame_GUI, '+', (cX - 15, cY + 8), cv2.FONT_HERSHEY_SIMPLEX, 1, parameters['color'], 2) #centroid on video
+                    cv2.add(frame_GUI, (-10, 60, -10, 0), dst=frame_GUI, mask=mask)
+                    cv2.putText(frame_GUI, '+', (cX - 15, cY + 8), cv2.FONT_HERSHEY_SIMPLEX, 1, parameters['color'], 2)
                     cv2.imshow(windows[0], frame_GUI)
 
                     if key == 112 and not args['draw_on_video']:  # Press 'p' to paint personalized color
                         parameters = colorDetection(frame_GUI, parameters, (cX, cY))
 
-                    if args['use_shake_prevention']: # if two sequential point are too far apart connected line is not drawn
+                    if args['use_shake_prevention']:
                         if args['draw_on_video'] and previous_point_frame is not None:
                             dist = math.sqrt((previous_point_frame[0] - cX) ** 2 + (previous_point_frame[1] - cY) ** 2)
                             if dist > 75:
@@ -283,9 +291,9 @@ def main():
                             if dist > 150:
                                 previous_point_canvas = None
 
-                    if not args['draw_on_video'] or not args['use_numeric_paint']:
-                        center = (x, y)
+                    center = (x, y)
 
+                    if args['extra']:
                         if 30 <= center[1] <= 135:
                             if 100 <= center[0] <= 225:
                                 canvas = copy.deepcopy(canvas_original)
@@ -305,7 +313,6 @@ def main():
                            (mode_elipse['first'] and not mode_elipse['second']) or \
                            (mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']) or \
                            (key == 115) or (key == 111) or (key == 101) # key = 's' or 'e' or 'o'
-                    # it is true in the middle of drawing a figure
 
                     if not cond:
 
@@ -346,8 +353,9 @@ def main():
                             final_draw = copy.deepcopy(canvas_frame)
                             initial_draw = copy.deepcopy(canvas_frame)
 
-     # <============================================= DRAW SHAPES =========================================>
                         if key == ord('s'):
+
+                            print("\nYou draw a square.")
 
                             if not mode_square['first']:
 
@@ -364,6 +372,8 @@ def main():
 
                         elif key == ord('o'):
 
+                            print("\nYou draw a circle.")
+
                             if not mode_circle['first']:
 
                                 coordinates['1'] = coordinates['mouse']
@@ -377,6 +387,8 @@ def main():
                                 mode_circle['second'] = True
 
                         elif key == ord('e'):
+
+                            print("\nYou draw an elipse.")
 
                             if not mode_elipse['first']:
 
@@ -411,8 +423,6 @@ def main():
                                 canvas = copy.deepcopy(final_draw)
                             else:
                                 canvas_frame = copy.deepcopy(final_draw)
-                else:
-                    cv2.imshow(windows[0], frame_GUI)
 
         else:
             cv2.imshow(windows[2], frame_largest)
@@ -420,7 +430,6 @@ def main():
 
         key = cv2.waitKey(1)  # keyboard command
 
-        # <=============================================  VISUALIZATION  =========================================>
         if args['draw_on_video']:
             mask_frame = colormask(canvas_frame)
             frame_draw[mask_frame > 0] = canvas_frame[mask_frame > 0]
@@ -433,6 +442,7 @@ def main():
                 keyboardCommands(key, parameters, canvas, canvas, previous_point_canvas, args)
 
         if key == 113 or key == 81:  # Press 'q' to close the windows
+            print("\nExiting Program.")
             cv2.destroyAllWindows()
             break
 
@@ -442,15 +452,15 @@ def main():
 def keyboardCommands(key, parameters, canvas, image, previous_point, args):
     if key == 114 or key == 82:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
-        print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
+        print('Brush is now ' + Back.RED + 'red.' + Style.RESET_ALL)
 
     elif key == 103 or key == 71:  # Press 'g' to paint green
         parameters['color'] = (0, 255, 0)
-        print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
+        print('Brush is now ' + Back.GREEN + 'green.' + Style.RESET_ALL)
 
     elif key == 98 or key == 66:  # Press 'b' to paint blue
         parameters['color'] = (255, 0, 0)
-        print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
+        print('Brush is now ' + Back.BLUE + 'blue.' + Style.RESET_ALL)
 
     elif key == 43:  # Press '+' to get bigger radius
         parameters['radius'] += 1
@@ -501,15 +511,15 @@ def rules():
     print('Press ' + Fore.YELLOW + '+' + Style.RESET_ALL + ' to get bigger radius.')
     print('Press ' + Fore.YELLOW + '-' + Style.RESET_ALL + ' to get smaller radius.')
     print('Press ' + Fore.YELLOW + 'x or X' + Style.RESET_ALL + ' to erase.')
-    print('Press ' + Back.YELLOW + Fore.BLACK + 'c or C' + Style.RESET_ALL + ' to clear the window.')
+    print('Press ' + Back.YELLOW + 'c or C' + Style.RESET_ALL + ' to clear the window.')
     print('Press ' + Fore.LIGHTBLUE_EX + 'w or W' + Style.RESET_ALL + ' to write/save the drawn image'
                                                                       '(Drawings Directory.')
-    print('Press ' + Back.CYAN + Fore.BLACK + 'e or E' + Style.RESET_ALL + ' to draw an Elipse (2 clicks).')
-    print('Press ' + Back.CYAN + Fore.BLACK +'o or O' + Style.RESET_ALL + ' to draw a Circle (1 click).')
-    print('Press ' + Back.CYAN + Fore.BLACK + 's or S' + Style.RESET_ALL + ' to draw a Square (1 click).')
+    print('Press ' + Back.CYAN + 'e or E' + Style.RESET_ALL + ' to draw an Elipse (2 clicks).')
+    print('Press ' + Back.CYAN + 'o or O' + Style.RESET_ALL + ' to draw a Circle (1 click).')
+    print('Press ' + Back.CYAN + 's or S' + Style.RESET_ALL + ' to draw a Square (1 click).\n')
 
 
-def drawFigure(coordinates, canvas, canvas_save, mode, color, thinkness): #draws rectangles,circles and ellipses
+def drawFigure(coordinates, canvas, canvas_save, mode, color, thinkness):
     if mode['figure'] == 's':
 
         if mode['first'] and not mode['second']:
