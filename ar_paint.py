@@ -262,9 +262,9 @@ def main():
 
                 if area_condition > 350:  # Area must be at least 350 pixels
                     if args['mouse_mode']:
-                        cX = mouse_position[0]
+                        cX = 0
                         x = mouse_position[0]
-                        cY = mouse_position[1]
+                        cY = 0
                         y = mouse_position[1]
                     else:
                         M = cv2.moments(cnt_max)  # Finds the object's moments
@@ -430,6 +430,7 @@ def main():
             cv2.imshow(windows[2], frame_largest)
             cv2.imshow(windows[0], frame_GUI)
 
+        cv2.imshow(windows[0], frame_GUI)
         key = cv2.waitKey(1)  # keyboard command
 
         if args['draw_on_video']:
