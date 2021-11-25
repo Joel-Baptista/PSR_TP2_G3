@@ -210,8 +210,6 @@ def main():
         frame_largest = np.zeros(frame.shape)
         frame_draw = copy.deepcopy(frame_GUI)
 
-        cv2.imshow(windows[0], frame_GUI)
-
     # <=============================================  SEGMENTATION  ===========================================>
 
         mask = cv2.inRange(frame_GUI, (lim_B['min'], lim_G['min'], lim_R['min']),
@@ -247,6 +245,7 @@ def main():
                     mask_largest = cv2.fillPoly(frame_largest, pts=[cnt_max], color=(255, 255, 255))
                     cv2.imshow(windows[2], mask_largest)
 
+
     # <=============================================  CANVAS DRAWING  =========================================>
 
                 if area_condition > 350:  # Area must be at least 350 pixels
@@ -262,6 +261,10 @@ def main():
 
                         x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
                         y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
+
+                    cv2.add(frame_GUI, (-10, 60, -10, 0), dst=frame_GUI, mask=mask)
+                    cv2.putText(frame_GUI, '+', (cX - 15, cY + 8), cv2.FONT_HERSHEY_SIMPLEX, 1, parameters['color'], 2)
+                    cv2.imshow(windows[0], frame_GUI)
 
                     if key == 112 and not args['draw_on_video']:  # Press 'p' to paint personalized color
                         parameters = colorDetection(frame_GUI, parameters, (cX, cY))
@@ -405,6 +408,7 @@ def main():
 
         else:
             cv2.imshow(windows[2], frame_largest)
+            cv2.imshow(windows[0], frame_GUI)
 
         key = cv2.waitKey(1)  # keyboard command
 
