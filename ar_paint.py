@@ -88,8 +88,6 @@ def main():
 
     key = -1
 
-    rules()
-
     colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
 
     # <======================================  GET LIMITS ON JSON FILE  ====================================>
@@ -99,7 +97,6 @@ def main():
     lim_R, lim_G, lim_B = JsonReader(args['json'])
 
     # <======================================  MODES INFO ==================================================>
-
     if args['use_shake_prevention']:
         print('\nYou are using ' + Fore.CYAN + 'Shaking Prevention Mode' + Fore.RESET)
 
@@ -112,6 +109,9 @@ def main():
         print('Index 2 must be Paint with ' + Back.GREEN + 'Green' + Back.RESET + ' Color')
         print('Index 3 must be Paint with ' + Back.BLUE + 'Blue' + Back.RESET + ' Color')
         print('Index 4 must be Paint with ' + Back.WHITE + 'White' + Back.RESET + ' Color')
+
+    rules()
+
     # <===========================================  VIDEO CAPTURE  =========================================>
 
     capture = cv2.VideoCapture(0)
@@ -200,23 +200,22 @@ def main():
                 x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
                 y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
 
-                center = (cX, cY)
+                if not args['draw_on_video'] or not args['use_numeric_paint']:
+                    center = (cX, cY)
 
-                if center[1] <= 137:
-                    if 100 <= center[0] <= 225:
-                        canvas = copy.deepcopy(canvas_original)
-                        print('<=======You cleared the window===========>')
-                    elif 375 <= center[0] <= 420:
-                        parameters['color'] = (255, 0, 0)
-                        print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
-                    elif 580 <= center[0] <= 635:
-                        parameters['color'] = (0, 255, 0)
-                        print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
-                    elif 800 <= center[0] <= 900:
-                        parameters['color'] = (0, 0, 255)
-                        print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
-
-                # points = [bpoints, gpoints, rpoints, ypoints]
+                    if center[1] <= 137:
+                        if 100 <= center[0] <= 225:
+                            canvas = copy.deepcopy(canvas_original)
+                            print('<=======You cleared the window===========>')
+                        elif 375 <= center[0] <= 420:
+                            parameters['color'] = (255, 0, 0)
+                            print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
+                        elif 580 <= center[0] <= 635:
+                            parameters['color'] = (0, 255, 0)
+                            print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
+                        elif 800 <= center[0] <= 900:
+                            parameters['color'] = (0, 0, 255)
+                            print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
 
                 cond = (mode_square['first'] and not mode_square['second']) or \
                        (mode_circle['first'] and not mode_circle['second']) or \
@@ -409,18 +408,20 @@ def keyboardCommands(key, parameters, canvas, image, previous_point,args):
 
     # <==================================================  RULES  =========================================>
 
-
 def rules():
-    print(Back.MAGENTA + 'RULES: ' + Style.RESET_ALL)
-    print('Press ' + Fore.BLUE + 'b' + Style.RESET_ALL + ' to paint blue.')
-    print('Press ' + Fore.GREEN + 'g' + Style.RESET_ALL + ' to paint green.')
-    print('Press ' + Fore.RED + 'r' + Style.RESET_ALL + ' to paint red.')
+    print('\n' + Back.MAGENTA + 'RULES: ' + Style.RESET_ALL)
+    print('Press ' + Fore.BLUE + 'b or B' + Style.RESET_ALL + ' to paint blue.')
+    print('Press ' + Fore.GREEN + 'g or G' + Style.RESET_ALL + ' to paint green.')
+    print('Press ' + Fore.RED + 'r or R' + Style.RESET_ALL + ' to paint red.')
     print('Press ' + Fore.YELLOW + '+' + Style.RESET_ALL + ' to get bigger radius.')
     print('Press ' + Fore.YELLOW + '-' + Style.RESET_ALL + ' to get smaller radius.')
-    print('Press ' + Fore.YELLOW + 'x' + Style.RESET_ALL + ' to erase.')
-    print('Press ' + Back.YELLOW + Fore.BLACK + 'C' + Style.RESET_ALL + ' to clear the window.')
-    print('Press ' + Fore.LIGHTBLUE_EX + 'W' + Style.RESET_ALL + ' to write the drawn image.')
-    print('Press ' + Back.RED + Fore.YELLOW + 'q' + Style.RESET_ALL + ' to close all windows.')
+    print('Press ' + Fore.YELLOW + 'x or X' + Style.RESET_ALL + ' to erase.')
+    print('Press ' + Back.YELLOW + 'c or C' + Style.RESET_ALL + ' to clear the window.')
+    print('Press ' + Fore.LIGHTBLUE_EX + 'w or W' + Style.RESET_ALL + ' to write/save the drawn image'
+                                                                      '(Drawings Directory.')
+    print('Press ' + Back.CYAN + 'e or E' + Style.RESET_ALL + ' to draw an Elipse (2 clicks).')
+    print('Press ' + Back.CYAN + 'o or O' + Style.RESET_ALL + ' to draw a Circle (1 click).')
+    print('Press ' + Back.CYAN + 's or S' + Style.RESET_ALL + ' to draw a Square (1 click).')
 
 
 def drawFigure(coordinates, canvas, canvas_save, mode, color, thinkness):
@@ -522,4 +523,3 @@ def drawFigure(coordinates, canvas, canvas_save, mode, color, thinkness):
 
 if __name__ == "__main__":
     main()
-
