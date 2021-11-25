@@ -423,6 +423,8 @@ def main():
                                 canvas = copy.deepcopy(final_draw)
                             else:
                                 canvas_frame = copy.deepcopy(final_draw)
+                else:
+                    cv2.imshow(windows[0], frame_GUI)
 
         else:
             cv2.imshow(windows[2], frame_largest)
