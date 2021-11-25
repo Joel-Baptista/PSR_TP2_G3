@@ -344,7 +344,7 @@ def main():
                             initial_draw = copy.deepcopy(canvas)
                         else:
                             if cond:
-                                frame_aux = copy.deepcopy(frame_GUI)
+                                frame_aux = copy.deepcopy(frame_draw)
                                 mask_frame = colormask(initial_draw)
                                 frame_aux[mask_frame > 0] = initial_draw[mask_frame > 0]
                                 cv2.imshow(windows[3], frame_aux)
