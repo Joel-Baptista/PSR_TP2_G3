@@ -155,6 +155,8 @@ def main():
 
     rules()
 
+    if args['draw_on_video'] and args['use_numeric_paint']:
+        print('\n' + 'Numeric paint not supported')
     # <===========================================  VIDEO CAPTURE  =========================================>
 
     capture = cv2.VideoCapture(0)
