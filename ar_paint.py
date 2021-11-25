@@ -510,6 +510,7 @@ def rules():
     print('Press ' + Fore.BLUE + 'b or B' + Style.RESET_ALL + ' to paint blue.')
     print('Press ' + Fore.GREEN + 'g or G' + Style.RESET_ALL + ' to paint green.')
     print('Press ' + Fore.RED + 'r or R' + Style.RESET_ALL + ' to paint red.')
+    print('Press ' + Fore.WHITE + 'p or P' + Style.RESET_ALL + ' to paint screen color.')
     print('Press ' + Fore.YELLOW + '+' + Style.RESET_ALL + ' to get bigger radius.')
     print('Press ' + Fore.YELLOW + '-' + Style.RESET_ALL + ' to get smaller radius.')
     print('Press ' + Fore.YELLOW + 'x or X' + Style.RESET_ALL + ' to erase.')
