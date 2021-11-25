@@ -50,6 +50,11 @@ def paintMode():
                         '--image_numeric_paint',
                         help="Path to Image on Numeric Paint Mode (No Effect without Use Numeric Paint Argument",
                         default='numeric_paint_images/pinguim.png')
+
+    parser.add_argument('-mm',
+                        '--mouse_mode',
+                        help="Use Mouse to Paint",
+                        action="store_true")
     args = vars(parser.parse_args())
     return args
 
@@ -66,6 +71,36 @@ def JsonReader(json_file): # Read and format json file information
     return R, G, B
 
 
+def MouseCallBack(event, x, y, flags, param):
+    global mouse_position, is_clicked
+    mouse_position = (x, y)
+    if event == cv2.EVENT_LBUTTONDOWN:
+        is_clicked = True
+    elif event == cv2.EVENT_MOUSEMOVE and is_clicked:
+        is_clicked = True
+    elif event == cv2.EVENT_LBUTTONUP:
+        is_clicked = False
+
+
+def colorDetection(image, parameters, centroid):
+
+    B, G, R = cv2.split(image)
+    mask = np.zeros(image.shape[:2])
+    mask = cv2.circle(mask, centroid, 20, 255, -1)
+
+    r = np.average(R[mask > 0])/255
+    b = np.average(B[mask > 0])/255
+    g = np.average(G[mask > 0])/255
+
+    color = (b, g, r)
+
+    parameters['color'] = color
+
+    print('Brush is now ' + Back.GREEN + ' personalized color.' + Style.RESET_ALL)
+
+    return parameters
+
+
 def main():
 
     # <===========================================  INITIALIZATION  =========================================>
@@ -79,6 +114,12 @@ def main():
 
     global mouse_coordinates
     mouse_coordinates = None
+
+    global mouse_position
+    mouse_position = (0, 0)
+
+    global is_clicked
+    is_clicked = False
 
     coordinates = {'1': None, '2': None, '3': None, 'mouse': None}
 
@@ -119,6 +160,7 @@ def main():
 
     windows = ['Camera', 'Segmented image', 'Largest Component', 'Canvas']
     positions = [(0, 0), (0, 600), (650, 0), (850, 0)]
+
     if args['use_numeric_paint']:
         path = args['image_numeric_paint']
         canvas = cv2.imread(path, cv2.IMREAD_COLOR)
@@ -150,6 +192,13 @@ def main():
     kernel = np.ones((2, 2), np.uint8) # for pre-processing images
     cv2.imshow(windows[3], canvas)
 
+    # mouse call back
+
+    if args['mouse_mode']:
+        cv2.setMouseCallback(windows[3], MouseCallBack)
+    else:
+        is_clicked = True
+
     while True:
 
         # <===========================================  FRAME CAPTURE  ===========================================>
@@ -179,162 +228,182 @@ def main():
 
         contours, hierarchy = cv2.findContours(mask_closing, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        if len(contours) > 0: # Finds contour with maximum area and draws it on window "Largest Component"
+        if args['mouse_mode']:
+            contours_len = 1
+        else:
+            contours_len = len(contours)
 
-            area = max(contours, key=cv2.contourArea)
-            area_condition = cv2.contourArea(area)
+        if contours_len > 0: # Finds contour with maximum area and draws it on window "Largest Component"
+            if is_clicked:
+                if args['mouse_mode']:
+                    area_condition = 400
+                else:
+                    area = max(contours, key=cv2.contourArea)
+                    area_condition = cv2.contourArea(area)
 
-            areas = [cv2.contourArea(c) for c in contours]
-            max_index = np.argmax(areas)
-            cnt_max = contours[max_index]
-            mask_largest = cv2.fillPoly(frame_largest, pts=[cnt_max], color=(255, 255, 255))
-            cv2.imshow(windows[2], mask_largest)
+                    areas = [cv2.contourArea(c) for c in contours]
+                    max_index = np.argmax(areas)
+                    cnt_max = contours[max_index]
+                    mask_largest = cv2.fillPoly(frame_largest, pts=[cnt_max], color=(255, 255, 255))
+                    cv2.imshow(windows[2], mask_largest)
 
     # <=============================================  CANVAS DRAWING  =========================================>
 
-            if area_condition > 350:  # Area must be at least 350 pixels
-                M = cv2.moments(cnt_max)    # Finds the object's moments
-                cX = int(M['m10']/M['m00']) # With the moments, calculates the object's centroid
-                cY = int(M['m01'] / M['m00'])
-
-                x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
-                y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
-
-                if not args['draw_on_video'] or not args['use_numeric_paint']:
-                    center = (cX, cY)
-
-                    if center[1] <= 137:
-                        if 100 <= center[0] <= 225:
-                            canvas = copy.deepcopy(canvas_original)
-                            print('<=======You cleared the window===========>')
-                        elif 375 <= center[0] <= 420:
-                            parameters['color'] = (255, 0, 0)
-                            print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
-                        elif 580 <= center[0] <= 635:
-                            parameters['color'] = (0, 255, 0)
-                            print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
-                        elif 800 <= center[0] <= 900:
-                            parameters['color'] = (0, 0, 255)
-                            print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
-
-                cond = (mode_square['first'] and not mode_square['second']) or \
-                       (mode_circle['first'] and not mode_circle['second']) or \
-                       (mode_elipse['first'] and not mode_elipse['second']) or \
-                       (mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']) or \
-                       (key == 115) or (key == 111) or (key == 101) # key = 's' or 'e' or 'o'
-
-                if not cond:
-
-                    cv2.circle(canvas, (x, y), parameters['radius'], parameters['color'], -1)  # Draws a filled circle
-
-                    if previous_point_canvas is not None:
-                        cv2.line(canvas, previous_point_canvas, (x, y), parameters['color'], 2 * parameters['radius'])
-                        # Draws a line
-                    if not args['draw_on_video']:
-                        cv2.imshow(windows[3], canvas)
-                    elif args['draw_on_video']:
-                        cv2.circle(canvas_frame, (cX, cY), parameters['radius'], parameters['color'], -1)
-                        if previous_point_frame is not None:
-                            cv2.line(canvas_frame, previous_point_frame, (cX, cY), parameters['color'],
-                                     2 * parameters['radius'])
-
-                    previous_point_canvas = (x, y)
-                    previous_point_frame = (cX, cY)
-
-                else:
-                    previous_point_canvas = None
-                    previous_point_frame = None
-
-                    if not args['draw_on_video']:
-                        if cond:
-                            cv2.imshow(windows[3], initial_draw)
-                        coordinates['mouse'] = (x, y)
-                        final_draw = copy.deepcopy(canvas)
-                        initial_draw = copy.deepcopy(canvas)
+                if area_condition > 350:  # Area must be at least 350 pixels
+                    if args['mouse_mode']:
+                        cX = mouse_position[0]
+                        x = mouse_position[0]
+                        cY = mouse_position[1]
+                        y = mouse_position[1]
                     else:
-                        if cond:
-                            frame_aux = copy.deepcopy(frame_GUI)
-                            mask_frame = colormask(initial_draw)
-                            frame_aux[mask_frame > 0] = initial_draw[mask_frame > 0]
-                            cv2.imshow(windows[3], frame_aux)
+                        M = cv2.moments(cnt_max)  # Finds the object's moments
+                        cX = int(M['m10'] / M['m00'])  # With the moments, calculates the object's centroid
+                        cY = int(M['m01'] / M['m00'])
 
-                        coordinates['mouse'] = (cX, cY)
-                        final_draw = copy.deepcopy(canvas_frame)
-                        initial_draw = copy.deepcopy(canvas_frame)
+                        x = int((cX / w_frame) * w_canvas)  # Because of differences in canvas and frame sizes,
+                        y = int((cY / h_frame) * h_canvas)  # it is needed to adjust the painting points
 
-                    if key == ord('s'):
+                    if key == 112 and not args['draw_on_video']:  # Press 'p' to paint personalized color
+                        parameters = colorDetection(frame_GUI, parameters, (cX, cY))
 
-                        if not mode_square['first']:
+                    if args['use_shake_prevention']:
+                        if args['draw_on_video'] and previous_point_frame is not None:
+                            dist = math.sqrt((previous_point_frame[0] - cX) ** 2 + (previous_point_frame[1] - cY) ** 2)
+                            if dist > 75:
+                                previous_point_frame = None
+                        if not args['draw_on_video'] and previous_point_canvas is not None:
+                            dist = math.sqrt((previous_point_canvas[0] - x) ** 2 + (previous_point_canvas[1] - y) ** 2)
+                            if dist > 150:
+                                previous_point_canvas = None
 
-                            coordinates['1'] = coordinates['mouse']
+                    if not args['draw_on_video'] or not args['use_numeric_paint']:
+                        center = (x, y)
 
-                            mode_square['first'] = True
-                            mode_circle['first'] = False
-                            mode_elipse['first'] = False
+                        if 30 <= center[1] <= 135:
+                            if 100 <= center[0] <= 225:
+                                canvas = copy.deepcopy(canvas_original)
+                                print('<=======You cleared the window===========>')
+                            elif 330 <= center[0] <= 450:
+                                parameters['color'] = (255, 0, 0)
+                                print('Brush is now ' + Back.BLUE + ' blue.' + Style.RESET_ALL)
+                            elif 550 <= center[0] <= 675:
+                                parameters['color'] = (0, 255, 0)
+                                print('Brush is now ' + Back.GREEN + ' green.' + Style.RESET_ALL)
+                            elif 775 <= center[0] <= 900:
+                                parameters['color'] = (0, 0, 255)
+                                print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
 
-                        elif mode_square['first'] and not mode_square['second']:
+                    cond = (mode_square['first'] and not mode_square['second']) or \
+                           (mode_circle['first'] and not mode_circle['second']) or \
+                           (mode_elipse['first'] and not mode_elipse['second']) or \
+                           (mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']) or \
+                           (key == 115) or (key == 111) or (key == 101) # key = 's' or 'e' or 'o'
 
-                            coordinates['2'] = coordinates['mouse']
-                            mode_square['second'] = True
+                    if not cond:
 
-                    elif key == ord('o'):
+                        cv2.circle(canvas, (x, y), parameters['radius'], parameters['color'], -1)  # Draws a filled circle
 
-                        if not mode_circle['first']:
-
-                            coordinates['1'] = coordinates['mouse']
-
-                            mode_circle['first'] = True
-                            mode_square['first'] = False
-                            mode_elipse['first'] = False
-
-                        elif mode_circle['first'] and not mode_circle['second']:
-                            coordinates['2'] = coordinates['mouse']
-                            mode_circle['second'] = True
-
-                    elif key == ord('e'):
-
-                        if not mode_elipse['first']:
-
-                            coordinates['1'] = coordinates['mouse']
-
-                            mode_elipse['first'] = True
-                            mode_square['first'] = False
-                            mode_circle['first'] = False
-
-                        elif mode_elipse['first'] and not mode_elipse['second']:
-                            coordinates['2'] = coordinates['mouse']
-                            mode_elipse['second'] = True
-
-                        elif mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']:
-                            coordinates['3'] = coordinates['mouse']
-                            mode_elipse['third'] = True
-
-                    if mode_square['first']:
-                        final_draw, initial_draw, mode_square = \
-                            drawFigure(coordinates, final_draw, initial_draw, mode_square, parameters['color'], parameters['radius'])
-
-                    if mode_circle['first']:
-                        final_draw, initial_draw, mode_circle = \
-                            drawFigure(coordinates, final_draw, initial_draw, mode_circle, parameters['color'], parameters['radius'])
-
-                    if mode_elipse['first']:
-                        final_draw, initial_draw, mode_elipse = \
-                            drawFigure(coordinates, final_draw, initial_draw, mode_elipse, parameters['color'], parameters['radius'])
-
-                    if not (mode_square['first'] or mode_circle['first'] or mode_elipse['first']):
+                        if previous_point_canvas is not None:
+                            cv2.line(canvas, previous_point_canvas, (x, y), parameters['color'], 2 * parameters['radius'])
+                            # Draws a line
                         if not args['draw_on_video']:
-                            canvas = copy.deepcopy(final_draw)
+                            cv2.imshow(windows[3], canvas)
+                        elif args['draw_on_video']:
+                            cv2.circle(canvas_frame, (cX, cY), parameters['radius'], parameters['color'], -1)
+                            if previous_point_frame is not None:
+                                cv2.line(canvas_frame, previous_point_frame, (cX, cY), parameters['color'],
+                                         2 * parameters['radius'])
+
+                        previous_point_canvas = (x, y)
+                        previous_point_frame = (cX, cY)
+
+                    else:
+                        previous_point_canvas = None
+                        previous_point_frame = None
+
+                        if not args['draw_on_video']:
+                            if cond:
+                                cv2.imshow(windows[3], initial_draw)
+                            coordinates['mouse'] = (x, y)
+                            final_draw = copy.deepcopy(canvas)
+                            initial_draw = copy.deepcopy(canvas)
                         else:
-                            canvas_frame = copy.deepcopy(final_draw)
+                            if cond:
+                                frame_aux = copy.deepcopy(frame_GUI)
+                                mask_frame = colormask(initial_draw)
+                                frame_aux[mask_frame > 0] = initial_draw[mask_frame > 0]
+                                cv2.imshow(windows[3], frame_aux)
+
+                            coordinates['mouse'] = (cX, cY)
+                            final_draw = copy.deepcopy(canvas_frame)
+                            initial_draw = copy.deepcopy(canvas_frame)
+
+                        if key == ord('s'):
+
+                            if not mode_square['first']:
+
+                                coordinates['1'] = coordinates['mouse']
+
+                                mode_square['first'] = True
+                                mode_circle['first'] = False
+                                mode_elipse['first'] = False
+
+                            elif mode_square['first'] and not mode_square['second']:
+
+                                coordinates['2'] = coordinates['mouse']
+                                mode_square['second'] = True
+
+                        elif key == ord('o'):
+
+                            if not mode_circle['first']:
+
+                                coordinates['1'] = coordinates['mouse']
+
+                                mode_circle['first'] = True
+                                mode_square['first'] = False
+                                mode_elipse['first'] = False
+
+                            elif mode_circle['first'] and not mode_circle['second']:
+                                coordinates['2'] = coordinates['mouse']
+                                mode_circle['second'] = True
+
+                        elif key == ord('e'):
+
+                            if not mode_elipse['first']:
+
+                                coordinates['1'] = coordinates['mouse']
+
+                                mode_elipse['first'] = True
+                                mode_square['first'] = False
+                                mode_circle['first'] = False
+
+                            elif mode_elipse['first'] and not mode_elipse['second']:
+                                coordinates['2'] = coordinates['mouse']
+                                mode_elipse['second'] = True
+
+                            elif mode_elipse['first'] and mode_elipse['second'] and not mode_elipse['third']:
+                                coordinates['3'] = coordinates['mouse']
+                                mode_elipse['third'] = True
+
+                        if mode_square['first']:
+                            final_draw, initial_draw, mode_square = \
+                                drawFigure(coordinates, final_draw, initial_draw, mode_square, parameters['color'], 2*parameters['radius'])
+
+                        if mode_circle['first']:
+                            final_draw, initial_draw, mode_circle = \
+                                drawFigure(coordinates, final_draw, initial_draw, mode_circle, parameters['color'], 2*parameters['radius'])
+
+                        if mode_elipse['first']:
+                            final_draw, initial_draw, mode_elipse = \
+                                drawFigure(coordinates, final_draw, initial_draw, mode_elipse, parameters['color'], 2*parameters['radius'])
+
+                        if not (mode_square['first'] or mode_circle['first'] or mode_elipse['first']):
+                            if not args['draw_on_video']:
+                                canvas = copy.deepcopy(final_draw)
+                            else:
+                                canvas_frame = copy.deepcopy(final_draw)
 
         else:
-
-            if args['use_shake_prevention']:
-                previous_point_canvas = None
-                previous_point_frame = None
-            else:
-                previous_point_canvas = previous_point_canvas
-                previous_point_frame = previous_point_frame
             cv2.imshow(windows[2], frame_largest)
 
         key = cv2.waitKey(1)  # keyboard command
@@ -357,7 +426,7 @@ def main():
     # <==============================================  KEYBOARD COMMANDS  =====================================>
 
 
-def keyboardCommands(key, parameters, canvas, image, previous_point,args):
+def keyboardCommands(key, parameters, canvas, image, previous_point, args):
     if key == 114 or key == 82:    # Press 'r' to paint red
         parameters['color'] = (0, 0, 255)
         print('Brush is now ' + Back.RED + ' red.' + Style.RESET_ALL)
@@ -388,7 +457,10 @@ def keyboardCommands(key, parameters, canvas, image, previous_point,args):
             path = args['image_numeric_paint']
             canvas = cv2.imread(path, cv2.IMREAD_COLOR)
         else:
-            canvas = 255 * np.ones((1000, 1000, 3))
+            if args['draw_on_video']:
+                canvas = 255 * np.ones(image.shape)
+            else:
+                canvas = 255 * np.ones((1000, 1000, 3))
         print('<=======You cleared the window===========>')
         previous_point = None
 
